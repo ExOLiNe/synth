@@ -32,18 +32,11 @@ public:
 private:
     void bindLayoutsToTree(AudioProcessorValueTreeState& apvts);
 
-    Slider cutOffSlider;
-    SliderAttachment cutOffValue;
-    Label cutOffLabel;
+    Slider cutOffSlider, resonanceSlider, mixSlider;
+    SliderAttachment cutOffValue, resonanceValue, mixValue;
+    Label cutOffLabel, resonanceLabel, mixLabel;
 
-    Slider resonanceSlider;
-    SliderAttachment resonanceValue;
-    Label resonanceLabel;
+    const int borderSize = 5;
 
-    Slider mixSlider;
-    SliderAttachment mixValue;
-    Label mixLabel;
-
-    int borderSize = 5;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterComponent)
 };

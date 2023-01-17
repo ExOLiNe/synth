@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <vector>
 
 using ParameterLayoutVector = std::vector<std::unique_ptr<juce::RangedAudioParameter>>;
 

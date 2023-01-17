@@ -24,22 +24,22 @@ using namespace std;
 class Oscillator  : public Component
 {
 public:
-    Oscillator(std::string name, std::string id, AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer);
+    Oscillator(const string name, const string& id, AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer);
     ~Oscillator() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    std::string name;
+    const string name;
     OscControlJPanel controlPanel;
     OscWaveTable waveTable;
 
     ComboBox waveSelector;
     unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> waveSelectorAttachment;
 
-    int borderSize = 8;
+    const int borderSize = 8;
 
-    void bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts);
+    void bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Oscillator)
 };

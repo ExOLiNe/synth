@@ -27,7 +27,7 @@ enum AdsrToggle
 class EnvelopeComponent  : public juce::Component
 {
 public:
-    EnvelopeComponent(std::string firstId, std::string secondId, AudioProcessorValueTreeState& apvts);
+    EnvelopeComponent(const string& firstId, const string& secondId, AudioProcessorValueTreeState& apvts);
     ~EnvelopeComponent() override;
 
     void paint (juce::Graphics&) override;

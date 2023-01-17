@@ -33,7 +33,7 @@ private:
     dsp::WindowingFunction<float> window;
     float fifo[fftSize];
     float fftData[2 * fftSize];
-    int fifoIndex = 0;
+    unsigned int fifoIndex = 0;
     bool nextFFTBlockReady = false;
 
     void pushNextSampleIntoFifo(const float sample);

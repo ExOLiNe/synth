@@ -12,7 +12,7 @@
 #include "EnvelopeComponent.h"
 
 //==============================================================================
-EnvelopeComponent::EnvelopeComponent(std::string firstId, std::string secondId, AudioProcessorValueTreeState& apvts) :
+EnvelopeComponent::EnvelopeComponent(const string& firstId, const string& secondId, AudioProcessorValueTreeState& apvts) :
     adsrPanel1(firstId, apvts),
     adsrPanel2(secondId, apvts),
     modAdsrPanel("mod", apvts) //TODO remove hardcode

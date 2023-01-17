@@ -12,7 +12,7 @@
 #include "OscControlJPanel.h"
 
 //==============================================================================
-OscControlJPanel::OscControlJPanel(std::string id, AudioProcessorValueTreeState& apvts)
+OscControlJPanel::OscControlJPanel(const string& id, AudioProcessorValueTreeState& apvts)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -66,7 +66,7 @@ OscControlJPanel::~OscControlJPanel()
 {
 }
 
-void OscControlJPanel::bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts)
+void OscControlJPanel::bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts)
 {
     detuneValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
         apvts, id + __OSC_DETUNE_ID_POSTFIX, detune);

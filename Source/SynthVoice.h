@@ -20,7 +20,7 @@ using namespace std;
 class SynthVoice : public SynthesiserVoice
 {
 public:
-    SynthVoice(std::string id, AudioProcessorValueTreeState& apvts, int i);
+    SynthVoice(const string id, const AudioProcessorValueTreeState& apvts);
     bool canPlaySound(SynthesiserSound*) override;
     void startNote(int midiNoteNumber,
         float velocity,
@@ -36,9 +36,9 @@ public:
 private:
     void updateParams();
 
-    string mod;
+    const string mod;
     //apvts params
-    atomic<float> *attack, *decay, *sustain, *release, *voicesAtomic, *detuneAtomic, 
+    const atomic<float> *attack, *decay, *sustain, *release, *voicesAtomic, *detuneAtomic, 
         *phase, *gainAtomic, *cutOffFrequency, * resonance, *filterMix, 
         *modAttack, *modDecay, *modSustain, *modRelease;
     Value waveTypeFloat;
@@ -51,14 +51,13 @@ private:
     ADSR gainAdsr, frequencyAdsr;
     ADSR::Parameters gainAdsrParams, frequencyAdsrParams;
     dsp::Gain<float> gain;
-
     dsp::LadderFilter<float> lowPassFilter;
 
     vector<Wave> waves;
 
-    string id;
+    const string id;
     
-    AudioProcessorValueTreeState& apvts;
+    const AudioProcessorValueTreeState& apvts;
 
     AudioBuffer<float> tempBuffer;
     AudioBuffer<float> frequencyBuffer;

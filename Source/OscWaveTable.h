@@ -27,8 +27,8 @@ public:
     void resized() override;
     void changeListenerCallback(ChangeBroadcaster* source) override;
 private:
-    int scopeSize;
-    float* scopeData;
+    const int scopeSize;
+    const float* const scopeData;
     SpectrumAnalyzer& analyzer;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscWaveTable)
 };

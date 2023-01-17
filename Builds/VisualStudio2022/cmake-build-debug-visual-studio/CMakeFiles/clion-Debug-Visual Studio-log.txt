@@ -1,0 +1,61 @@
+"C:\Program Files\JetBrains\CLion 2022.3.1\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -S C:\Users\Aleksandr\source\repos\Synth\Builds\VisualStudio2022 -B C:\Users\Aleksandr\source\repos\Synth\Builds\VisualStudio2022\cmake-build-debug-visual-studio
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.19041.0 to target Windows 10.0.
+-- The C compiler identification is MSVC 19.32.31329.0
+-- The CXX compiler identification is MSVC 19.32.31329.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+x64 architecture in use
+-- Configuring done
+CMake Error at CMakeLists.txt:324 (add_dependencies):
+  The dependency target "-" of target "Synth_StandalonePlugin" does not
+  exist.
+
+
+CMake Error at CMakeLists.txt:324 (add_dependencies):
+  The dependency target "Code" of target "Synth_StandalonePlugin" does not
+  exist.
+
+
+CMake Error at CMakeLists.txt:324 (add_dependencies):
+  The dependency target "Shared" of target "Synth_StandalonePlugin" does not
+  exist.
+
+
+CMake Error at CMakeLists.txt:324 (add_dependencies):
+  The dependency target "Synth" of target "Synth_StandalonePlugin" does not
+  exist.
+
+
+CMake Error at CMakeLists.txt:568 (add_dependencies):
+  The dependency target "-" of target "Synth_VST3" does not exist.
+
+
+CMake Error at CMakeLists.txt:568 (add_dependencies):
+  The dependency target "Code" of target "Synth_VST3" does not exist.
+
+
+CMake Error at CMakeLists.txt:568 (add_dependencies):
+  The dependency target "Shared" of target "Synth_VST3" does not exist.
+
+
+CMake Error at CMakeLists.txt:568 (add_dependencies):
+  The dependency target "Synth" of target "Synth_VST3" does not exist.
+
+
+-- Generating done
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_BUILD_TYPE
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.

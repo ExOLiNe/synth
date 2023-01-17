@@ -14,6 +14,7 @@
 #include "Params.h"
 
 using namespace juce;
+using namespace std;
 
 using SliderAttachment = std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>;
 using ComboBoxAttachment = std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment>;
@@ -24,32 +25,22 @@ using ComboBoxAttachment = std::unique_ptr<AudioProcessorValueTreeState::ComboBo
 class OscControlJPanel  : public juce::Component
 {
 public:
-    OscControlJPanel(std::string id, AudioProcessorValueTreeState& apvts);
+    OscControlJPanel(const string& id, AudioProcessorValueTreeState& apvts);
     ~OscControlJPanel() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    void bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts);
+    void bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts);
 
-    Slider detune;
-    SliderAttachment detuneValue;
-    Label detuneLabel;
-
-    Slider phase;
-    SliderAttachment phaseValue;
-    Label phaseLabel;
-
-    Slider level;
-    SliderAttachment levelValue;
-    Label levelLabel;
+    Slider detune, phase, level;
+    SliderAttachment detuneValue, phaseValue, levelValue;
+    Label detuneLabel, phaseLabel, levelLabel, voicesLabel;
 
     ComboBox voices;
     ComboBoxAttachment voicesValue;
-    Label voicesLabel;
 
-
-    int borderSize = 5;
+    const int borderSize = 5;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscControlJPanel)
 };

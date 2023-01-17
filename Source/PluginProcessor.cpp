@@ -32,7 +32,7 @@ SynthAudioProcessor::SynthAudioProcessor()
 
         for (int i = 0; i < 12; i++)
         {
-            synths[j]->addVoice(new SynthVoice(oscIds[j], treeState, i));
+            synths[j]->addVoice(new SynthVoice(oscIds[j], treeState));
         }
 
         synths[j]->clearSounds();

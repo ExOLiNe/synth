@@ -12,7 +12,7 @@
 #include "Oscillator.h"
 
 //==============================================================================
-Oscillator::Oscillator(std::string name, std::string id, 
+Oscillator::Oscillator(const string name, const string& id, 
     AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer)
     : name(name), 
     controlPanel(id, apvts),
@@ -39,7 +39,7 @@ Oscillator::~Oscillator()
 {
 }
 
-void Oscillator::bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts)
+void Oscillator::bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts)
 {
     waveSelectorAttachment = make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(
         apvts, id + __WAVE_SELECTOR_ID_POSTFIX, waveSelector);
@@ -47,20 +47,8 @@ void Oscillator::bindLayoutsToTree(std::string id, AudioProcessorValueTreeState&
     waveSelectorAttachment;
 }
 
-/*void Oscillator::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
-{
-    Logger::getCurrentLogger()->writeToLog("I have changed!");
-}*/
-
 void Oscillator::paint (juce::Graphics& g)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
 
     g.setColour (juce::Colours::grey);

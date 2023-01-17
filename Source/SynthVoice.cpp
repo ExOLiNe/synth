@@ -13,7 +13,7 @@
 
 static const float jump = 0.5f;
 
-SynthVoice::SynthVoice(std::string id, AudioProcessorValueTreeState& apvts, int i) : 
+SynthVoice::SynthVoice(const string id, const AudioProcessorValueTreeState& apvts) : 
     apvts(apvts),
     id(id),
     mod(MOD),

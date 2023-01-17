@@ -12,7 +12,7 @@
 #include "AdsrPanel.h"
 
 //==============================================================================
-AdsrPanel::AdsrPanel(std::string id, AudioProcessorValueTreeState& apvts)
+AdsrPanel::AdsrPanel(const string& id, AudioProcessorValueTreeState& apvts)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -60,7 +60,7 @@ AdsrPanel::~AdsrPanel()
 {
 }
 
-void AdsrPanel::bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts)
+void AdsrPanel::bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts)
 {
     attackValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
         apvts, id + __ADSR_ATTACK_ID_POSTFIX, attackSlider);
@@ -82,7 +82,7 @@ void AdsrPanel::paint (juce::Graphics& g)
 
 void AdsrPanel::resized()
 {
-    auto bounds = getLocalBounds();
+    const auto bounds = getLocalBounds();
 
 
     attackSlider.setBounds(

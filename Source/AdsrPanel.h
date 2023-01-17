@@ -14,6 +14,7 @@
 #include "Params.h"
 
 using namespace juce;
+using namespace std;
 
 using SliderAttachment = std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>;
 
@@ -23,7 +24,7 @@ using SliderAttachment = std::unique_ptr<AudioProcessorValueTreeState::SliderAtt
 class AdsrPanel  : public juce::Component
 {
 public:
-    AdsrPanel(std::string id, AudioProcessorValueTreeState& apvts);
+    AdsrPanel(const string& id, AudioProcessorValueTreeState& apvts);
     ~AdsrPanel() override;
 
     void paint (juce::Graphics&) override;
@@ -34,8 +35,8 @@ private:
     Label attackLabel, decayLabel, sustainLabel, releaseLabel;
     SliderAttachment attackValue, decayValue, sustainValue, releaseValue;
 
-    int borderSize = 5;
+    const int borderSize = 5;
 
-    void bindLayoutsToTree(std::string id, AudioProcessorValueTreeState& apvts);
+    void bindLayoutsToTree(const string& id, AudioProcessorValueTreeState& apvts);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AdsrPanel)
 };
