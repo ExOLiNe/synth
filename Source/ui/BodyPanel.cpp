@@ -14,10 +14,7 @@ BodyPanel::~BodyPanel() noexcept {
 }
 
 void BodyPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::indigo);
-    g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("Body panel!", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void BodyPanel::resized() {

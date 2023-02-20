@@ -6,6 +6,8 @@
 #include "../../../../other/Grid.h"
 
 WaveComponent::WaveComponent() {
+    wave.setData(getSinWaveTable());
+    wave.setZHighlight(4);
     addAndMakeVisible(wave);
 }
 
@@ -14,10 +16,7 @@ WaveComponent::~WaveComponent() noexcept {
 }
 
 void WaveComponent::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::chocolate);
-    g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("WaveComponent", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void WaveComponent::resized() {

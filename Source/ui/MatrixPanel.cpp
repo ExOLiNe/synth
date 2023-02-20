@@ -13,10 +13,7 @@ MatrixPanel::~MatrixPanel() noexcept {
 }
 
 void MatrixPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::beige);
-    g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("Matrix panel!", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void MatrixPanel::resized() {

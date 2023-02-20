@@ -25,7 +25,7 @@ FilterPanel::~FilterPanel() noexcept {
 }
 
 void FilterPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::brown);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void FilterPanel::resized() {

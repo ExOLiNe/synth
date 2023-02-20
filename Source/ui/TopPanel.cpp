@@ -16,7 +16,7 @@ TopPanel::~TopPanel() noexcept {
 }
 
 void TopPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::black);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void TopPanel::resized() {

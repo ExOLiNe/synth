@@ -30,10 +30,7 @@ Controls::~Controls() noexcept {
 }
 
 void Controls::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::cyan);
-    g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("Controls", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(juce::Colour::fromString("0xff191919"));
 }
 
 void Controls::resized() {

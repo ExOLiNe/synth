@@ -159,7 +159,7 @@ public:
         if (uniforms->viewMatrix.get() != nullptr)
             uniforms->viewMatrix->setMatrix4(getViewMatrix().mat, 1, false);
 
-        glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         /*if (prepare) {
