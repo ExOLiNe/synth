@@ -4,8 +4,9 @@
 
 #include "Controls.h"
 #include "../../../../Typedefs.h"
+#include "../../../../Constants.h"
 
-Controls::Controls() {
+Controls::Controls(juce::AudioProcessorValueTreeState& treeState, const juce::String& oscId) {
     voicesLabel.setText("voices", juce::NotificationType::dontSendNotification);
     voicesLabel.setJustificationType(juce::Justification::Flags::centred);
     addAndMakeVisible(voicesLabel);
@@ -62,6 +63,7 @@ Controls::Controls() {
     setKnob(fine);
     addAndMakeVisible(fine);
 
+    bindLayoutsToTree(treeState, oscId);
 }
 
 Controls::~Controls() noexcept {
@@ -116,4 +118,23 @@ void Controls::resized() {
 void Controls::setKnob(juce::Slider &knob) {
     knob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0.0f, 0.0f);
+}
+
+void Controls::bindLayoutsToTree(juce::AudioProcessorValueTreeState& apvts, const juce::String& oscId) {
+    voicesValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::voices.name, voices);
+    detuneValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::detune.name, detune);
+    phaseValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::phase.name, phase);
+    wtPosValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::wtPos.name, wtPos);
+    panValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::pan.name, pan);
+    levelValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::level.name, level);
+    semitoneValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::semitone.name, semitone);
+    fineValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+            apvts, oscId + params::osc::fine.name, fine);
 }

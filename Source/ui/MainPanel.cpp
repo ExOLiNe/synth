@@ -1,7 +1,7 @@
 #include "MainPanel.h"
 #include "../other/Grid.h"
 
-MainPanel::MainPanel() {
+MainPanel::MainPanel(juce::AudioProcessorValueTreeState& treeState) : leftPanel(treeState), rightPanel(treeState) {
     addAndMakeVisible(leftPanel);
     addAndMakeVisible(rightPanel);
 }

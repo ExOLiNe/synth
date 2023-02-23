@@ -1,13 +1,14 @@
 #pragma once
 
-#include "juce_gui_basics/juce_gui_basics.h"
+#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "MainPanel.h"
 #include "MatrixPanel.h"
 #include "MasterPanel.h"
 
 class BodyPanel : public juce::Component, public juce::ActionListener {
 public:
-    BodyPanel();
+    BodyPanel(juce::AudioProcessorValueTreeState&);
     ~BodyPanel();
 
     void paint(juce::Graphics&) override;

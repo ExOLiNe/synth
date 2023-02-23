@@ -4,8 +4,10 @@
 
 #include "LeftPanel.h"
 #include "../../other/Grid.h"
+#include "../../Constants.h"
 
-LeftPanel::LeftPanel() {
+LeftPanel::LeftPanel(juce::AudioProcessorValueTreeState& treeState)
+: oscPanelA(treeState, OSC1), oscPanelB(treeState, OSC2) {
     addAndMakeVisible(oscPanelA);
     addAndMakeVisible(oscPanelB);
 }
@@ -19,13 +21,6 @@ void LeftPanel::paint(juce::Graphics &g) {
 }
 
 void LeftPanel::resized() {
-    /*juce::FlexBox fb;
-    fb.flexWrap = juce::FlexBox::Wrap::wrap;
-    fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::stretch;
-    fb.items.add(juce::FlexItem(voices).withMinWidth(200.0f).withMinHeight(200.0f));
-    fb.performLayout(getLocalBounds().toFloat());*/
-
     Grid grid({1, 1}, {1});
     grid.setItems({&oscPanelA, &oscPanelB});
     grid.performLayout(getLocalBounds());

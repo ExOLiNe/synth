@@ -1,13 +1,14 @@
 #pragma once
 
-#include "juce_gui_basics/juce_gui_basics.h"
+#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "right/FmOscPanel.h"
 #include "right/FilterPanel.h"
 #include "right/EnvPanel.h"
 
 class RightPanel : public juce::Component {
 public:
-    RightPanel();
+    RightPanel(juce::AudioProcessorValueTreeState& treeState);
     ~RightPanel();
 
     void paint(juce::Graphics&) override;

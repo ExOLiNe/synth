@@ -2,7 +2,7 @@
 #include "../other/Grid.h"
 #include "../Constants.h"
 
-BodyPanel::BodyPanel() {
+BodyPanel::BodyPanel(juce::AudioProcessorValueTreeState& treeState) : mainPanel(treeState) {
     addAndMakeVisible(mainPanel);
     addChildComponent(matrixPanel);
     addChildComponent(masterPanel);

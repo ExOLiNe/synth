@@ -92,7 +92,9 @@ add_images_from_directory(${PROJECT_NAME} Assets)
 
 target_sources(${PROJECT_NAME}
         PRIVATE
+        Source/Constants.cpp
         Source/other/Grid.cpp
+        Source/wave/WaveTables.cpp
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
         Source/ui/TopPanel.cpp

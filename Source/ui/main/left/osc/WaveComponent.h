@@ -1,6 +1,6 @@
 #pragma once
 
-#include "juce_gui_basics/juce_gui_basics.h"
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "wave/Wave.h"
 
 class WaveComponent : public juce::Component {

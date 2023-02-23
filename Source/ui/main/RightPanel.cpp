@@ -5,7 +5,7 @@
 #include "RightPanel.h"
 #include "../../other/Grid.h"
 
-RightPanel::RightPanel() {
+RightPanel::RightPanel(juce::AudioProcessorValueTreeState& treeState) {
     addAndMakeVisible(fmOscPanel);
     addAndMakeVisible(filterPanel);
     addAndMakeVisible(envPanel);
