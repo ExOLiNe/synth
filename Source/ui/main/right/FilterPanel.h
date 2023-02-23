@@ -11,6 +11,7 @@ public:
     void resized() override;
 private:
     void setKnob(juce::Slider& knob);
+    juce::Label frequencyLabel, resonanceLabel, mixLabel;
     juce::Slider frequency, resonance, mix;
     juce::ToggleButton enabled;
     juce::ComboBox selector;

@@ -6,10 +6,24 @@
 #include "../../../Typedefs.h"
 
 FilterPanel::FilterPanel() {
+    frequencyLabel.setText("Freq", juce::NotificationType::dontSendNotification);
+    frequencyLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(frequencyLabel);
+
     setKnob(frequency);
     addAndMakeVisible(frequency);
+
+    resonanceLabel.setText("Reso", juce::NotificationType::dontSendNotification);
+    resonanceLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(resonanceLabel);
+
     setKnob(resonance);
     addAndMakeVisible(resonance);
+
+    mixLabel.setText("Mix", juce::NotificationType::dontSendNotification);
+    mixLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(mixLabel);
+
     setKnob(mix);
     addAndMakeVisible(mix);
 
@@ -36,13 +50,20 @@ void FilterPanel::resized() {
             Track(Fr(2)),
             Track(Fr(1)),
             Track(Fr(1)),
+            Track(Fr(1)),
+            Track(Fr(1)),
+            Track(Fr(1)),
             Track(Fr(1))
     };
     grid.items = {
-            GridItem(selector).withHeight(50.0f),
-            GridItem(frequency),
-            GridItem(resonance),
-            GridItem(mix)
+            GridItem(selector).withHeight(50.0f)
+                    .withAlignSelf(juce::GridItem::AlignSelf::center),
+                    GridItem(frequencyLabel),
+                    GridItem(frequency),
+                    GridItem(resonanceLabel),
+                    GridItem(resonance),
+                    GridItem(mixLabel),
+                    GridItem(mix)
     };
     grid.performLayout(getLocalBounds());
 }

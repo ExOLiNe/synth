@@ -105,6 +105,11 @@ target_sources(${PROJECT_NAME}
         Source/ui/main/right/FmOscPanel.cpp
         Source/ui/main/right/FilterPanel.cpp
         Source/ui/main/right/EnvPanel.cpp
+        Source/ui/main/right/env/adsr/ADSRWave.cpp
+        Source/ui/main/right/env/adsr/ADSRPanel.cpp
+        Source/ui/main/right/env/lfo/LFOWave.cpp
+        Source/ui/main/right/env/lfo/LFOPanel.cpp
+        Source/ui/main/right/env/Body.cpp
         Source/ui/top/LogoComponent.cpp
         Source/ui/top/MenuComponent.cpp
         Source/ui/top/PresetComponent.cpp

@@ -7,8 +7,17 @@
 #include "../../../Typedefs.h"
 
 FmOscPanel::FmOscPanel() {
+    frequencyLabel.setText("Freq", juce::NotificationType::dontSendNotification);
+    frequencyLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(frequencyLabel);
+
     setKnob(frequency);
     addAndMakeVisible(frequency);
+
+    intensityLabel.setText("Reso", juce::NotificationType::dontSendNotification);
+    intensityLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(intensityLabel);
+
     setKnob(intensity);
     addAndMakeVisible(intensity);
 
@@ -29,19 +38,25 @@ void FmOscPanel::paint(juce::Graphics &g) {
 }
 
 void FmOscPanel::resized() {
-    juce::Grid grid;
+    using namespace juce;
+    Grid grid;
     grid.templateRows = { Track(Fr(1)) };
     grid.templateColumns = {
             Track(Fr(2)),
             Track(Fr(1)),
             Track(Fr(1)),
+            Track(Fr(1)),
+            Track(Fr(1)),
             Track(Fr(1))
     };
     grid.items = {
-            juce::GridItem(selector).withHeight(50.0f),
-            juce::GridItem(frequency),
-            juce::GridItem(intensity),
-            juce::GridItem(enabled).withWidth(100.0f).withHeight(100.0f)
+            GridItem(selector).withHeight(50.0f)
+            .withAlignSelf(juce::GridItem::AlignSelf::center),
+            GridItem(frequencyLabel),
+            GridItem(frequency),
+            GridItem(intensityLabel),
+            GridItem(intensity),
+            GridItem(enabled).withWidth(100.0f).withHeight(100.0f)
     };
     grid.performLayout(getLocalBounds());
 }

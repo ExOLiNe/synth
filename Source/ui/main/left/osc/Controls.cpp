@@ -3,23 +3,62 @@
 //
 
 #include "Controls.h"
-#include "../../../../other/Grid.h"
+#include "../../../../Typedefs.h"
 
 Controls::Controls() {
+    voicesLabel.setText("voices", juce::NotificationType::dontSendNotification);
+    voicesLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(voicesLabel);
+
     setKnob(voices);
     addAndMakeVisible(voices);
+
+    detuneLabel.setText("detune", juce::NotificationType::dontSendNotification);
+    detuneLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(detuneLabel);
+
     setKnob(detune);
     addAndMakeVisible(detune);
+
+    phaseLabel.setText("phase", juce::NotificationType::dontSendNotification);
+    phaseLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(phaseLabel);
+
     setKnob(phase);
     addAndMakeVisible(phase);
+
+    wtPosLabel.setText("wtPos", juce::NotificationType::dontSendNotification);
+    wtPosLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(wtPosLabel);
+
     setKnob(wtPos);
     addAndMakeVisible(wtPos);
+
+    panLabel.setText("pan", juce::NotificationType::dontSendNotification);
+    panLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(panLabel);
+
     setKnob(pan);
     addAndMakeVisible(pan);
+
+    levelLabel.setText("level", juce::NotificationType::dontSendNotification);
+    levelLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(levelLabel);
+
     setKnob(level);
     addAndMakeVisible(level);
+
+    semitoneLabel.setText("semitone", juce::NotificationType::dontSendNotification);
+    semitoneLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(semitoneLabel);
+
     setKnob(semitone);
     addAndMakeVisible(semitone);
+
+    fineLabel.setText("fine", juce::NotificationType::dontSendNotification);
+    fineLabel.setJustificationType(juce::Justification::Flags::centred);
+    addAndMakeVisible(fineLabel);
+
     setKnob(fine);
     addAndMakeVisible(fine);
 
@@ -34,28 +73,44 @@ void Controls::paint(juce::Graphics &g) {
 }
 
 void Controls::resized() {
-    float minSize = 80.0f;
-
-    Grid grid({1, 1, 1, 1}, {1, 1});
-
-    grid.setItems({&detune, &voices, &phase, &wtPos, &level, &pan, &semitone, &fine});
-    grid.performLayout(getLocalBounds());
-
-    /*juce::FlexBox fb;
-    fb.flexWrap = juce::FlexBox::Wrap::wrap;
-    fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::stretch;
-    fb.items = {
-            juce::FlexItem(detune).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(voices).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(phase).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(wtPos).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(level).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(pan).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(semitone).withMinWidth(minSize).withMinHeight(minSize),
-            juce::FlexItem(fine).withMinWidth(minSize).withMinHeight(minSize),
+    int knobFraction = 7;
+    int labelFraction = 1;
+    using namespace juce;
+    Grid grid;
+    grid.alignItems = Grid::AlignItems::center;
+    grid.templateRows = {
+            Track(Fr(knobFraction)),
+            Track(Fr(labelFraction)),
+            Track(Fr(knobFraction)),
+            Track(Fr(labelFraction)),
+            Track(Fr(knobFraction)),
+            Track(Fr(labelFraction)),
+            Track(Fr(knobFraction)),
+            Track(Fr(labelFraction))
     };
-    fb.performLayout(getLocalBounds().toFloat());*/
+    grid.templateColumns = {
+            Track(Fr(1)),
+            Track(Fr(1))
+    };
+    grid.items = {
+           voices,
+           detune,
+           voicesLabel,
+           detuneLabel,
+           phase,
+           wtPos,
+           phaseLabel,
+           wtPosLabel,
+           pan,
+           level,
+           panLabel,
+           levelLabel,
+           semitone,
+           fine,
+           semitoneLabel,
+           fineLabel
+    };
+    grid.performLayout(getLocalBounds());
 }
 
 void Controls::setKnob(juce::Slider &knob) {

@@ -11,6 +11,7 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 private:
+    juce::ComboBox selector;
     Wave wave;
     std::vector<std::vector<float>> getSinWaveTable() {
         std::vector<std::vector<float>> points;

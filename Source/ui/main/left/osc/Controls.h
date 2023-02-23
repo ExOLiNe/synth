@@ -12,5 +12,6 @@ public:
 private:
     void setKnob(juce::Slider& knob);
     juce::Slider voices, detune, phase, wtPos, pan, level, semitone, fine;
+    juce::Label voicesLabel, detuneLabel, phaseLabel, wtPosLabel, panLabel, levelLabel, semitoneLabel, fineLabel;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Controls)
 };

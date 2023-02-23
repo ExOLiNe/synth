@@ -9,6 +9,13 @@ WaveComponent::WaveComponent() {
     wave.setData(getSinWaveTable());
     wave.setZHighlight(4);
     addAndMakeVisible(wave);
+
+    selector.addItem("sin", 1);
+    selector.addItem("square", 2);
+    selector.addItem("triangle", 3);
+    selector.addItem("saw", 4);
+    selector.setSelectedId(1, juce::NotificationType::dontSendNotification);
+    addAndMakeVisible(selector);
 }
 
 WaveComponent::~WaveComponent() noexcept {
@@ -20,7 +27,7 @@ void WaveComponent::paint(juce::Graphics &g) {
 }
 
 void WaveComponent::resized() {
-    Grid grid({ 1 }, { 1, 1});
-    grid.setItems({&wave});
+    Grid grid({ 1, 7 }, { 1 });
+    grid.setItems({&selector, &wave});
     grid.performLayout(getLocalBounds());
 }

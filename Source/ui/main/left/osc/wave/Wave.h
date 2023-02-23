@@ -49,15 +49,17 @@ public:
 
     void initialise() override {
         createShaders();
+        draggableOrientation.mouseDrag(juce::Point{260.0f, 160.0f});
     }
 
     void shutdown() override {
+        prepare = false;
         shader.reset();
         uniforms.reset();
     }
 
     juce::Matrix3D<float> getProjectionMatrix() const {
-        auto w = 0.8;
+        auto w = 1.2;
         auto h = w * getLocalBounds().toFloat().getAspectRatio(false); // [2]
 
         return juce::Matrix3D<float>::fromFrustum(-w, w, -h, h, 4.0f, 30.0f); // [3]
