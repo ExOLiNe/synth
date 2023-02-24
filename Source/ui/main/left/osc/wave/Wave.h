@@ -7,7 +7,7 @@
 #include <mutex>
 #include <map>
 
-#define DEFAULT_COLOUR 0.3f
+#define DEFAULT_COLOUR 0.2f
 #define HIGHLIGHTED_COLOUR 1.0f
 
 static void gLClearError() {
@@ -29,12 +29,16 @@ static bool glLogCall(const char* function, const char* file, int line) {
     x;\
     jassert(glLogCall(#x, __FILE__, __LINE__))
 
-class Wave : public juce::OpenGLAppComponent {
+class Wave : public juce::OpenGLAppComponent, public juce::AudioProcessorValueTreeState::Listener {
 public:
     Wave() {
         openGLContext.setOpenGLVersionRequired(juce::OpenGLContext::OpenGLVersion::openGL4_3);
 
         draggableOrientation.reset(juce::Vector3D<float>(0.0, 1.0, 0.0));
+    }
+
+    void parameterChanged (const juce::String& parameterID, float newValue) override {
+        setZHighlight((int) (newValue / 100 * zSize) - 1);
     }
 
     void mouseDown(const juce::MouseEvent &event) override {
@@ -89,20 +93,20 @@ public:
             vertices.erase(vertices.begin(), vertices.end());
         }
 
-        const unsigned int zSize = data.size();
+        zSize = data.size();
 
-        xSize = data[0].size();
+        xSize = data.at(0).size();
 
         float maxValueByAbs = 0;
 
         for (unsigned int z = 0; z < zSize; ++z) {
             float zPos = normalizeIndex(z, zSize);
 
-            jassert(data[z].size() == xSize);
+            jassert(data.at(z).size() == xSize);
 
             for (unsigned int x = 0; x < xSize; ++x) {
                 float xPos = normalizeIndex(x, xSize);
-                float y = data[z][x];
+                float y = data.at(z).at(x);
                 float yAbs = std::abs(y);
                 if (yAbs > maxValueByAbs) {
                     maxValueByAbs = yAbs;
@@ -126,6 +130,7 @@ public:
                 indices.push_back((xSize * (z + 1)) + x);
             }
         }
+        prepare = false;
         renderMutex.unlock();
     }
 
@@ -339,6 +344,7 @@ private:
 
     unsigned int zHighlighted = 0;
     unsigned int xSize;
+    unsigned int zSize;
 
     int frame = 0;
     bool prepare = false;

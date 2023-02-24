@@ -5,16 +5,18 @@
 #include "MatrixPanel.h"
 #include "../other/Grid.h"
 
-MatrixPanel::MatrixPanel() {
-}
+namespace ui {
+    MatrixPanel::MatrixPanel() {
+    }
 
-MatrixPanel::~MatrixPanel() noexcept {
+    MatrixPanel::~MatrixPanel() noexcept {
 
-}
+    }
 
-void MatrixPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colour::fromString("0xff191919"));
-}
+    void MatrixPanel::paint(juce::Graphics &g) {
+        g.fillAll(juce::Colour::fromString("0xff191919"));
+    }
 
-void MatrixPanel::resized() {
+    void MatrixPanel::resized() {
+    }
 }

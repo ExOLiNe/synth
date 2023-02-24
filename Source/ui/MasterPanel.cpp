@@ -5,16 +5,18 @@
 #include "MasterPanel.h"
 #include "../other/Grid.h"
 
-MasterPanel::MasterPanel() {
-}
+namespace ui {
+    MasterPanel::MasterPanel() {
+    }
 
-MasterPanel::~MasterPanel() noexcept {
+    MasterPanel::~MasterPanel() noexcept {
 
-}
+    }
 
-void MasterPanel::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colour::fromString("0xff191919"));
-}
+    void MasterPanel::paint(juce::Graphics &g) {
+        g.fillAll(juce::Colour::fromString("0xff191919"));
+    }
 
-void MasterPanel::resized() {
+    void MasterPanel::resized() {
+    }
 }

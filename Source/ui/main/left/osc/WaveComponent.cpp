@@ -4,22 +4,41 @@
 
 #include "WaveComponent.h"
 #include "../../../../other/Grid.h"
+#include "../../../../Constants.h"
 
-WaveComponent::WaveComponent() {
-    wave.setData(getSinWaveTable());
-    wave.setZHighlight(4);
+WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) {
+    waveTables = audio::WaveTables::getWaveTables();
+
+    {
+        int index = 0;
+        for (const auto &waveTable: waveTables) {
+            selector.addItem(waveTable.name, ++index);
+        }
+    }
+
+    selectWaveTable(0, true);
+
+    treeState.addParameterListener(oscId + params::osc::wtPos.name, &wave);
     addAndMakeVisible(wave);
 
-    selector.addItem("sin", 1);
-    selector.addItem("square", 2);
-    selector.addItem("triangle", 3);
-    selector.addItem("saw", 4);
-    selector.setSelectedId(1, juce::NotificationType::dontSendNotification);
+    selector.addListener(this);
     addAndMakeVisible(selector);
 }
 
 WaveComponent::~WaveComponent() noexcept {
 
+}
+
+void WaveComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) {
+    selectWaveTable(comboBoxThatHasChanged->getSelectedItemIndex());
+}
+
+void WaveComponent::selectWaveTable(int index, bool reselect) {
+    wave.setData(waveTables.at(index).getWaveTablePresentation());
+    wave.setZHighlight(0);
+    if (reselect) {
+        selector.setSelectedItemIndex(index, juce::NotificationType::dontSendNotification);
+    }
 }
 
 void WaveComponent::paint(juce::Graphics &g) {

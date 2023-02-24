@@ -6,16 +6,18 @@
 #include "right/FilterPanel.h"
 #include "right/EnvPanel.h"
 
-class RightPanel : public juce::Component {
-public:
-    RightPanel(juce::AudioProcessorValueTreeState& treeState);
-    ~RightPanel();
+namespace ui {
+    class RightPanel : public juce::Component {
+    public:
+        RightPanel(juce::AudioProcessorValueTreeState& treeState);
+        ~RightPanel();
 
-    void paint(juce::Graphics&) override;
-    void resized() override;
-private:
-    FmOscPanel fmOscPanel;
-    FilterPanel filterPanel;
-    EnvPanel envPanel;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RightPanel)
-};
+        void paint(juce::Graphics&) override;
+        void resized() override;
+    private:
+        FmOscPanel fmOscPanel;
+        FilterPanel filterPanel;
+        EnvPanel envPanel;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RightPanel)
+    };
+}

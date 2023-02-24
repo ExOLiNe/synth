@@ -29,7 +29,7 @@ void SynthAudioProcessorEditor::paint(juce::Graphics &g) {
 }
 
 void SynthAudioProcessorEditor::resized() {
-    Grid grid({1, 8}, { 1 });
+    Grid grid({1, 15}, { 1 });
     grid.setItems({ &topPanel, &bodyPanel });
     grid.performLayout(getLocalBounds());
 }

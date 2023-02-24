@@ -5,15 +5,17 @@
 #include "main/LeftPanel.h"
 #include "main/RightPanel.h"
 
-class MainPanel : public juce::Component {
-public:
-    MainPanel(juce::AudioProcessorValueTreeState&);
-    ~MainPanel();
+namespace ui {
+    class MainPanel : public juce::Component {
+    public:
+        MainPanel(juce::AudioProcessorValueTreeState&);
+        ~MainPanel();
 
-    void paint(juce::Graphics&) override;
-    void resized() override;
-private:
-    LeftPanel leftPanel;
-    RightPanel rightPanel;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainPanel)
-};
+        void paint(juce::Graphics&) override;
+        void resized() override;
+    private:
+        LeftPanel leftPanel;
+        RightPanel rightPanel;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainPanel)
+    };
+}

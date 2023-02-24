@@ -5,8 +5,9 @@
 #include "OscPanel.h"
 #include "../../../other/Grid.h"
 
-OscPanel::OscPanel(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) : controls(treeState, oscId) {
-    addAndMakeVisible(wave);
+OscPanel::OscPanel(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) :
+controls(treeState, oscId), waveComponent(treeState, oscId) {
+    addAndMakeVisible(waveComponent);
     addAndMakeVisible(controls);
 }
 
@@ -20,6 +21,6 @@ void OscPanel::paint(juce::Graphics &g) {
 
 void OscPanel::resized() {
     Grid grid({ 1 }, { 2, 1 });
-    grid.setItems({&wave, &controls});
+    grid.setItems({&waveComponent, &controls});
     grid.performLayout(getLocalBounds());
 }
