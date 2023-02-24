@@ -4,9 +4,10 @@
 
 #include "FilterPanel.h"
 #include "../../../Typedefs.h"
+#include "../../../Constants.h"
 
 namespace ui {
-    FilterPanel::FilterPanel() {
+    FilterPanel::FilterPanel(juce::AudioProcessorValueTreeState& treeState) : controls(treeState) {
         addAndMakeVisible(controls);
 
         selector.addListener(&controls);
@@ -42,7 +43,7 @@ namespace ui {
 
 
 
-    FilterControls::FilterControls() {
+    FilterControls::FilterControls(juce::AudioProcessorValueTreeState& treeState, const juce::String& filterId) {
         frequencyLabel.setText("Freq", juce::NotificationType::dontSendNotification);
         frequencyLabel.setJustificationType(juce::Justification::centredRight);
         addAndMakeVisible(frequencyLabel);
@@ -65,6 +66,8 @@ namespace ui {
         addAndMakeVisible(mix);
 
         addAndMakeVisible(enabled);
+
+        bindLayoutsToTree(treeState, filterId);
     }
 
     FilterControls::~FilterControls() noexcept {}
@@ -95,8 +98,21 @@ namespace ui {
         knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0.0f, 0.0f);
     }
 
+    void FilterControls::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& filterId) {
+        frequencyValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, filterId + params::filter::freq.name, frequency
+        );
+        resonanceValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, filterId + params::filter::reso.name, resonance
+        );
+        enabledValue = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
+                apvts, filterId + params::filter::enabled.name, enabled
+                );
+    }
 
-    FilterControlsHolder::FilterControlsHolder() {
+
+    FilterControlsHolder::FilterControlsHolder(juce::AudioProcessorValueTreeState& treeState) :
+    controlsA(treeState, FILTER_A), controlsB(treeState, FILTER_B) {
         addAndMakeVisible(controlsA);
         addChildComponent(controlsB);
     }

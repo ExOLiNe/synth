@@ -6,7 +6,8 @@
 #include "../../other/Grid.h"
 
 namespace ui {
-    RightPanel::RightPanel(juce::AudioProcessorValueTreeState& treeState) {
+    RightPanel::RightPanel(juce::AudioProcessorValueTreeState& treeState) :
+    fmOscPanel(treeState), filterPanel(treeState), envPanel(treeState) {
         addAndMakeVisible(fmOscPanel);
         addAndMakeVisible(filterPanel);
         addAndMakeVisible(envPanel);

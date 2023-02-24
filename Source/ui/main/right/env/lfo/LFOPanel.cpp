@@ -4,9 +4,11 @@
 
 #include "LFOPanel.h"
 #include "../../../../../Typedefs.h"
+#include "../../../../../Constants.h"
 
 namespace ui {
-    LFOPanel::LFOPanel() {
+    LFOPanel::LFOPanel(juce::AudioProcessorValueTreeState& treeState, const juce::String lfoId) :
+    wave(treeState, lfoId) {
         frequencyLabel.setText("Freq", juce::NotificationType::dontSendNotification);
         frequencyLabel.setJustificationType(juce::Justification::centredRight);
         addAndMakeVisible(frequencyLabel);
@@ -23,19 +25,25 @@ namespace ui {
         intensity.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible(intensity);
 
-        mixLabel.setText("Mix", juce::NotificationType::dontSendNotification);
-        mixLabel.setJustificationType(juce::Justification::centredRight);
-        addAndMakeVisible(mixLabel);
-
-        mix.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-        mix.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        addAndMakeVisible(mix);
+        treeState.addParameterListener(lfoId + params::lfo::freq.name, &wave);
+        treeState.addParameterListener(lfoId + params::lfo::amp.name, &wave);
 
         addAndMakeVisible(wave);
+
+        bindLayoutsToTree(treeState, lfoId);
     }
 
     LFOPanel::~LFOPanel() noexcept {
 
+    }
+
+    void LFOPanel::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& lfoId) {
+        frequencyValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
+                apvts, lfoId + params::lfo::freq.name, frequency
+                );
+        intensityValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
+                apvts, lfoId + params::lfo::amp.name, intensity
+        );
     }
 
     void LFOPanel::paint(juce::Graphics &g) {
@@ -47,8 +55,6 @@ namespace ui {
         Grid grid;
         grid.templateRows = { Track(Fr(4)), Track(Fr(1)) };
         grid.templateColumns = {
-                Track(Fr(1)),
-                Track(Fr(1)),
                 Track(Fr(1)),
                 Track(Fr(1)),
                 Track(Fr(1)),
@@ -64,9 +70,7 @@ namespace ui {
                 GridItem(frequencyLabel),
                 GridItem(frequency),
                 GridItem(intensityLabel),
-                GridItem(intensity),
-                GridItem(mixLabel),
-                GridItem(mix)
+                GridItem(intensity)
         };
         grid.performLayout(getLocalBounds());
     }

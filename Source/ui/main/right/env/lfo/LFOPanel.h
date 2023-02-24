@@ -6,15 +6,17 @@
 namespace ui {
     class LFOPanel : public juce::Component {
     public:
-        LFOPanel();
+        LFOPanel(juce::AudioProcessorValueTreeState& treeState, const juce::String lfoId);
         ~LFOPanel();
 
         void paint(juce::Graphics&) override;
         void resized() override;
     private:
+        void bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& lfoId);
         LFOWave wave;
-        juce::Label frequencyLabel, intensityLabel, mixLabel;
-        juce::Slider frequency, intensity, mix;
+        juce::Label frequencyLabel, intensityLabel;
+        juce::Slider frequency, intensity;
+        std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> frequencyValue, intensityValue, mixValue;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LFOPanel)
     };
 }

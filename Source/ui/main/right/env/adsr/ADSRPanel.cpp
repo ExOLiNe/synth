@@ -4,10 +4,11 @@
 
 #include "ADSRPanel.h"
 #include "../../../../../Typedefs.h"
+#include "../../../../../Constants.h"
 
 namespace ui {
-    ADSRPanel::ADSRPanel() {
-
+    ADSRPanel::ADSRPanel(juce::AudioProcessorValueTreeState& treeState, const juce::String adsrId) :
+    wave(treeState, adsrId) {
         attackLabel.setText("Attack", juce::NotificationType::dontSendNotification);
         attackLabel.setJustificationType(juce::Justification::centredRight);
         addAndMakeVisible(attackLabel);
@@ -40,18 +41,41 @@ namespace ui {
         release.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible(release);
 
-        wave.setDefaultValues(attack, decay, sustain, release);
+        //wave.setDefaultValues(attack, decay, sustain, release);
         addAndMakeVisible(wave);
 
+        treeState.addParameterListener(adsrId + params::adsr::attack.name, &wave);
+        treeState.addParameterListener(adsrId + params::adsr::decay.name, &wave);
+        treeState.addParameterListener(adsrId + params::adsr::sustain.name, &wave);
+        treeState.addParameterListener(adsrId + params::adsr::release.name, &wave);
+
+        bindLayoutsToTree(treeState, adsrId);
     }
 
     ADSRPanel::~ADSRPanel() noexcept {
 
     }
 
+    void ADSRPanel::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& adsrId) {
+        attackValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, adsrId + params::adsr::attack.name, attack
+                );
+        decayValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, adsrId + params::adsr::decay.name, decay
+        );
+        sustainValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, adsrId + params::adsr::sustain.name, sustain
+        );
+        releaseValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, adsrId + params::adsr::release.name, release
+        );
+    }
+
     void ADSRPanel::paint(juce::Graphics &g) {
 
     }
+
+
 
     void ADSRPanel::resized() {
         using namespace juce;

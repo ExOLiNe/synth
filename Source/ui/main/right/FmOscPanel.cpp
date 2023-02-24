@@ -3,11 +3,12 @@
 //
 
 #include "FmOscPanel.h"
-#include <juce_gui_extra/juce_gui_extra.h>
 #include "../../../Typedefs.h"
+#include "../../../Constants.h"
 
 namespace ui {
-    FmOscPanel::FmOscPanel() {
+    FmOscPanel::FmOscPanel(juce::AudioProcessorValueTreeState& treeState)
+    : controls(treeState) {
         addAndMakeVisible(controls);
 
         selector.addListener(&controls);
@@ -44,7 +45,8 @@ namespace ui {
 
     //=============
 
-    FmOscControlsHolder::FmOscControlsHolder() {
+    FmOscControlsHolder::FmOscControlsHolder(juce::AudioProcessorValueTreeState& treeState) :
+        controlsA(treeState, FM_A), controlsB(treeState, FM_B) {
         addAndMakeVisible(controlsA);
         addChildComponent(controlsB);
     }
@@ -74,7 +76,7 @@ namespace ui {
 
     //=============
 
-    FmOscControls::FmOscControls() {
+    FmOscControls::FmOscControls(juce::AudioProcessorValueTreeState& treeState, const juce::String& fmId) {
         frequencyLabel.setText("Freq", juce::NotificationType::dontSendNotification);
         frequencyLabel.setJustificationType(juce::Justification::centredRight);
         addAndMakeVisible(frequencyLabel);
@@ -82,17 +84,32 @@ namespace ui {
         setKnob(frequency);
         addAndMakeVisible(frequency);
 
-        intensityLabel.setText("Reso", juce::NotificationType::dontSendNotification);
-        intensityLabel.setJustificationType(juce::Justification::centredRight);
-        addAndMakeVisible(intensityLabel);
+        mixLabel.setText("Amp", juce::NotificationType::dontSendNotification);
+        mixLabel.setJustificationType(juce::Justification::centredRight);
+        addAndMakeVisible(mixLabel);
 
-        setKnob(intensity);
-        addAndMakeVisible(intensity);
+        setKnob(mix);
+        addAndMakeVisible(mix);
 
         addAndMakeVisible(enabled);
+
+        bindLayoutsToTree(treeState, fmId);
     }
 
     FmOscControls::~FmOscControls() {
+
+    }
+
+    void FmOscControls::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& fmId) {
+        frequencyValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, fmId + params::fm::freq.name, frequency
+                );
+        mixValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+                apvts, fmId + params::fm::mix.name, mix
+        );
+        enabledValue = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
+                apvts, fmId + params::fm::enabled.name, enabled
+                );
 
     }
 
@@ -114,8 +131,8 @@ namespace ui {
         grid.items = {
                 GridItem(frequencyLabel),
                 GridItem(frequency),
-                GridItem(intensityLabel),
-                GridItem(intensity),
+                GridItem(mixLabel),
+                GridItem(mix),
                 GridItem(enabled).withWidth(100.0f).withHeight(100.0f)
         };
         grid.performLayout(getLocalBounds());

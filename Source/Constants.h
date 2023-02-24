@@ -40,6 +40,11 @@ namespace params {
         Type defaultValue;
     };
 
+    struct BoolParam {
+        Str name;
+        bool defaultValue;
+    };
+
     namespace osc {
         extern Str waveTypeName;
 
@@ -56,22 +61,24 @@ namespace params {
     namespace fm {
         extern Param<float> freq;
         extern Param<unsigned int> mix;
+        extern BoolParam enabled;
     }
 
     namespace filter {
         extern Param<float> freq;
         extern Param<float> reso;
+        extern BoolParam enabled;
     }
 
     namespace adsr {
-        extern Param<float> freq;
-        extern Param<float> amp;
-        extern Param<unsigned int> mix;
+        extern Param<float> attack;
+        extern Param<float> decay;
+        extern Param<float> sustain;
+        extern Param<float> release;
     }
 
     namespace lfo {
         extern Param<float> freq;
         extern Param<float> amp;
-        extern Param<unsigned int> mix;
     }
 }

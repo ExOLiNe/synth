@@ -36,6 +36,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
      using Param = juce::RangedAudioParameter;
      using Param_f = juce::AudioParameterFloat;
      using Param_i = juce::AudioParameterInt;
+     using Param_b = juce::AudioParameterBool;
      vector<unique_ptr<Param>> params;
 
      vector<string> oscillators = { OSC1, OSC2 };
@@ -122,6 +123,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
      for (auto const &fmId : fms) {
          string freq = fmId + fm::freq.name;
          string mix = fmId + fm::mix.name;
+         string enabled = fmId + fm::enabled.name;
          params.emplace_back(
                  make_unique<Param_f> (
                          freq,
@@ -140,12 +142,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                          fm::mix.defaultValue
                          )
                  );
+         params.emplace_back(
+                 make_unique<Param_b> (
+                         enabled,
+                         enabled,
+                         fm::enabled.defaultValue
+                         )
+                 );
      }
 
      vector<string> filters = { FILTER_A, FILTER_B };
      for (auto const &filterId : filters) {
          string freq = filterId + filter::freq.name;
          string reso = filterId + filter::reso.name;
+         string enabled = filterId + filter::enabled.name;
          params.emplace_back(
                  make_unique<Param_f> (
                          freq,
@@ -164,39 +174,57 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                          filter::reso.defaultValue
                          )
                  );
+         params.emplace_back(
+                 make_unique<Param_b> (
+                         enabled,
+                         enabled,
+                         filter::enabled.defaultValue
+                         )
+                 );
      }
 
      vector<string> adsrs = { ADSR_VOLUME, ADSR_1, ADSR_2 };
      for (auto const &adsrId : adsrs) {
-         string freq = adsrId + adsr::freq.name;
-         string amp = adsrId + adsr::amp.name;
-         string mix = adsrId + adsr::mix.name;
+         string attack = adsrId + adsr::attack.name;
+         string decay = adsrId + adsr::decay.name;
+         string sustain = adsrId + adsr::sustain.name;
+         string release = adsrId + adsr::release.name;
 
          params.emplace_back(
                  make_unique<Param_f> (
-                         freq,
-                         freq,
-                         adsr::freq.minValue,
-                         adsr::freq.maxValue,
-                         adsr::freq.defaultValue
+                         attack,
+                         attack,
+                         adsr::attack.minValue,
+                         adsr::attack.maxValue,
+                         adsr::attack.defaultValue
                          )
                  );
          params.emplace_back(
                  make_unique<Param_f> (
-                         amp,
-                         amp,
-                         adsr::amp.minValue,
-                         adsr::amp.maxValue,
-                         adsr::amp.defaultValue
+                         decay,
+                         decay,
+                         adsr::decay.minValue,
+                         adsr::decay.maxValue,
+                         adsr::decay.defaultValue
                          )
                  );
          params.emplace_back(
                  make_unique<Param_i> (
-                         mix,
-                         mix,
-                         adsr::mix.minValue,
-                         adsr::mix.maxValue,
-                         adsr::mix.defaultValue
+                         sustain,
+                         sustain,
+                         adsr::sustain.minValue,
+                         adsr::sustain.maxValue,
+                         adsr::sustain.defaultValue
+                 )
+         );
+
+         params.emplace_back(
+                 make_unique<Param_i> (
+                         release,
+                         release,
+                         adsr::release.minValue,
+                         adsr::release.maxValue,
+                         adsr::release.defaultValue
                  )
          );
      }
@@ -205,7 +233,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
      for (auto const& lfoId : lfos) {
          string freq = lfoId + lfo::freq.name;
          string amp = lfoId + lfo::amp.name;
-         string mix = lfoId + lfo::mix.name;
          params.emplace_back(
                  make_unique<Param_f> (
                          freq,
@@ -222,15 +249,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                          lfo::amp.minValue,
                          lfo::amp.maxValue,
                          lfo::amp.defaultValue
-                         )
-                 );
-         params.emplace_back(
-                 make_unique<Param_i> (
-                         mix,
-                         mix,
-                         lfo::mix.minValue,
-                         lfo::mix.maxValue,
-                         lfo::mix.defaultValue
                          )
                  );
      }

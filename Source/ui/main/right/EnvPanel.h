@@ -6,7 +6,7 @@
 namespace ui {
     class EnvPanel : public juce::Component, public juce::Button::Listener {
     public:
-        EnvPanel();
+        EnvPanel(juce::AudioProcessorValueTreeState& treeState);
         ~EnvPanel();
 
         void paint(juce::Graphics&) override;

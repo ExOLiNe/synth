@@ -1,27 +1,31 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
 namespace ui {
 class FmOscControls : public juce::Component {
     public:
-        FmOscControls();
+        FmOscControls(juce::AudioProcessorValueTreeState& treeState, const juce::String& fmId);
         ~FmOscControls();
 
         void paint(juce::Graphics&) override;
         void resized() override;
     private:
+        void bindLayoutsToTree(juce::AudioProcessorValueTreeState& apvts, const juce::String& fmId);
         void setKnob(juce::Slider& knob);
-        juce::Label frequencyLabel, intensityLabel;
-        juce::ComboBox selector;
-        juce::Slider frequency, intensity;
+        juce::Label frequencyLabel, mixLabel;
+        juce::Slider frequency, mix;
         juce::ToggleButton enabled;
+        std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
+            frequencyValue, mixValue;
+        std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> enabledValue;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FmOscControls)
     };
 
     class FmOscControlsHolder : public juce::Component, public juce::ComboBox::Listener {
     public:
-        FmOscControlsHolder();
+        FmOscControlsHolder(juce::AudioProcessorValueTreeState& treeState);
         ~FmOscControlsHolder();
         void paint(juce::Graphics&) override;
         void resized() override;
@@ -33,7 +37,7 @@ class FmOscControls : public juce::Component {
 
     class FmOscPanel : public juce::Component {
     public:
-        FmOscPanel();
+        FmOscPanel(juce::AudioProcessorValueTreeState& treeState);
         ~FmOscPanel();
 
         void paint(juce::Graphics&) override;

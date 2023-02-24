@@ -7,7 +7,7 @@
 namespace ui {
     class Body : public juce::Component, public juce::ActionListener {
     public:
-        Body();
+        Body(juce::AudioProcessorValueTreeState& treeState);
         ~Body();
 
         void paint(juce::Graphics&) override;

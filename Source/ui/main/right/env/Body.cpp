@@ -6,7 +6,12 @@
 #include "../../../../Constants.h"
 
 namespace ui {
-    Body::Body() {
+    Body::Body(juce::AudioProcessorValueTreeState& treeState) :
+    volumeAdsr(treeState, ADSR_VOLUME),
+    adsr1(treeState, ADSR_1),
+    adsr2(treeState, ADSR_2),
+    lfo1(treeState, LFO_1),
+    lfo2(treeState, LFO_2) {
         addAndMakeVisible(volumeAdsr);
         addChildComponent(adsr1);
         addChildComponent(adsr2);

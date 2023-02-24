@@ -7,7 +7,7 @@
 #include "../../../Constants.h"
 
 namespace ui {
-    EnvPanel::EnvPanel() {
+    EnvPanel::EnvPanel(juce::AudioProcessorValueTreeState& treeState) : body(treeState) {
         volumeAdsrButton.setToggleState(true, juce::NotificationType::dontSendNotification);
         volumeAdsrButton.setButtonText("Main ADSRWave");
         volumeAdsrButton.addListener(this);

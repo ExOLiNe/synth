@@ -3,16 +3,25 @@
 //
 
 #include "LFOWave.h"
+#include "../../../../../Constants.h"
 
 namespace ui {
-    LFOWave::LFOWave() {
+    LFOWave::LFOWave(juce::AudioProcessorValueTreeState& treeState, const juce::String lfoId) :
+            treeState(treeState), lfoId(lfoId) {
     }
 
     LFOWave::~LFOWave() noexcept {
 
     }
 
+    void LFOWave::parameterChanged (const juce::String& parameterID, float newValue) {
+        repaint();
+    }
+
     void LFOWave::paint(juce::Graphics &g) {
+        auto rate = treeState.getRawParameterValue(lfoId + params::lfo::freq.name)->load();
+        auto amp = treeState.getRawParameterValue(lfoId + params::lfo::amp.name)->load() / 100;
+
         auto lineColour = juce::Colour(juce::PixelARGB(120, 107, 140, 175));
         float pointThickness = 3.0f;
 
