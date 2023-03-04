@@ -4,10 +4,9 @@
 
 #include "WaveComponent.h"
 #include "../../../../other/Grid.h"
-#include "../../../../Constants.h"
 
-WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) {
-    waveTables = audio::WaveTables::getWaveTables();
+WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId)
+: waveTables(audio::WaveTables::getInstance()->getWaveTables()), wave(treeState, oscId) {
 
     {
         int index = 0;
@@ -18,7 +17,6 @@ WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce
 
     selectWaveTable(0, true);
 
-    treeState.addParameterListener(oscId + params::osc::wtPos.name, &wave);
     addAndMakeVisible(wave);
 
     selector.addListener(this);
@@ -35,7 +33,6 @@ void WaveComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) {
 
 void WaveComponent::selectWaveTable(int index, bool reselect) {
     wave.setData(waveTables.at(index).getWaveTablePresentation());
-    wave.setZHighlight(0);
     if (reselect) {
         selector.setSelectedItemIndex(index, juce::NotificationType::dontSendNotification);
     }

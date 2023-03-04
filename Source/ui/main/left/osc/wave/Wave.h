@@ -6,6 +6,7 @@
 #include <sstream>
 #include <mutex>
 #include <map>
+#include "../../../../../Constants.h"
 
 #define DEFAULT_COLOUR 0.2f
 #define HIGHLIGHTED_COLOUR 1.0f
@@ -29,17 +30,18 @@ static bool glLogCall(const char* function, const char* file, int line) {
     x;\
     jassert(glLogCall(#x, __FILE__, __LINE__))
 
-class Wave : public juce::OpenGLAppComponent, public juce::AudioProcessorValueTreeState::Listener {
+class Wave : public juce::OpenGLAppComponent/*, public juce::AudioProcessorValueTreeState::Listener*/ {
 public:
-    Wave() {
+    Wave(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) :
+    zIndex(treeState.getRawParameterValue(oscId + params::osc::wtPos.name)) {
         openGLContext.setOpenGLVersionRequired(juce::OpenGLContext::OpenGLVersion::openGL4_3);
 
         draggableOrientation.reset(juce::Vector3D<float>(0.0, 1.0, 0.0));
     }
 
-    void parameterChanged (const juce::String& parameterID, float newValue) override {
+    /*void parameterChanged (const juce::String& parameterID, float newValue) override {
         setZHighlight((int) (newValue / 100 * zSize) - 1);
-    }
+    }*/
 
     void mouseDown(const juce::MouseEvent &event) override {
         draggableOrientation.mouseDrag(event.getPosition());
@@ -81,10 +83,8 @@ public:
     using zVector = std::vector<T>;
     using xVector = std::vector<float>;
 
-    void setData(const zVector<xVector>& data, int highlight = 0) {
+    void setData(const zVector<xVector>& data) {
         renderMutex.lock();
-
-        zHighlighted = highlight;
 
         if (!indices.empty()) {
             indices.erase(indices.begin(), indices.end());
@@ -134,11 +134,12 @@ public:
         renderMutex.unlock();
     }
 
-    void setZHighlight(int index) {
+    /*void setZHighlight(int index) {
         zHighlighted = index;
-    }
+    }*/
 
     void render() override {
+        unsigned int zHighlighted = ((static_cast<unsigned int>(zIndex->load()) / 100 * zSize) - 1);
         //renderMutex.lock();
         using namespace ::juce::gl;
 
@@ -342,7 +343,7 @@ private:
     std::vector<std::array<float, 4>> vertices;
     std::vector<GLuint> indices;
 
-    unsigned int zHighlighted = 0;
+    //unsigned int zHighlighted = 0;
     unsigned int xSize;
     unsigned int zSize;
 
@@ -360,6 +361,8 @@ private:
     GLuint vertexBuffer;
     GLuint indexBuffer;
     GLuint vao;
+
+    std::atomic<float> *zIndex;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Wave)
 };

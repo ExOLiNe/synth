@@ -9,6 +9,8 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "Constants.h"
+#include "audio/wave/WaveTables.h"
 
 //==============================================================================
 /**
@@ -57,6 +59,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState& getTreeState();
 private:
+    audio::SinWave wave;
+    juce::OwnedArray<juce::Synthesiser> oscillators;
+    std::vector<juce::String> oscIds { OSC1, OSC2 };
+    std::vector<juce::AudioBuffer<float>> oscOutputBuffers;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
     juce::AudioProcessorValueTreeState treeState;
     //==============================================================================

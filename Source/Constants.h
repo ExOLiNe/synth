@@ -12,6 +12,7 @@
 #define LFO1 ENV_MENU_TOPIC".lfo1"
 #define LFO2 ENV_MENU_TOPIC".lfo2"
 
+#define TOTAL_VOICES 1
 
 #define OSC1 "osc1"
 #define OSC2 "osc2"
@@ -46,13 +47,12 @@ namespace params {
     };
 
     namespace osc {
-        extern Str waveTypeName;
-
+        extern Str waveTableTypeName;
         extern Param<unsigned int> voices;
         extern Param<float> detune;
         extern Param<unsigned int> phase;
         extern Param<float> wtPos;
-        extern Param<int> pan;
+        extern Param<float> pan;
         extern Param<unsigned int> level;
         extern Param<int> semitone;
         extern Param<float> fine;

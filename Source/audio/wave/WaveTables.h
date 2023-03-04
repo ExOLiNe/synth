@@ -37,6 +37,7 @@ namespace audio {
         //WaveTable(WaveTable &&other);
 
         WaveTable(juce::String name, std::function<TableVector()> presentation, const std::initializer_list<Wave*>& waves);
+        WaveTable(WaveTable&& other);
 
         juce::String name;
         std::function<TableVector()> getWaveTablePresentation;
@@ -45,6 +46,14 @@ namespace audio {
 
     class WaveTables {
     public:
-        static std::vector<WaveTable> getWaveTables();
+        WaveTables(WaveTables& other) = delete;
+        void operator=(const WaveTables &) = delete;
+        static WaveTables* getInstance();
+        std::vector<WaveTable>& getWaveTables();
+        ~WaveTables();
+    private:
+        static WaveTables* instance;
+        static std::vector<WaveTable> waveTables;
+        WaveTables();
     };
 }

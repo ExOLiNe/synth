@@ -19,6 +19,6 @@ private:
 
     juce::ComboBox selector;
     Wave wave;
-    std::vector<audio::WaveTable> waveTables;
+    std::vector<audio::WaveTable>& waveTables;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WaveComponent)
 };

@@ -30,10 +30,19 @@ namespace audio {
 
     }
 
-    //TODO cache this shit
-    std::vector<WaveTable> WaveTables::getWaveTables() {
-        std::vector<WaveTable> waveTables;
-        waveTables.emplace_back(WaveTable("sin", []() -> TableVector {
+    WaveTables* WaveTables::getInstance() {
+        if (instance == nullptr) {
+            instance = new WaveTables();
+        }
+        return instance;
+    }
+
+    WaveTables::~WaveTables() {
+        waveTables.clear();
+    }
+
+    WaveTables::WaveTables() {
+        waveTables.push_back(std::move(WaveTable("sin", []() -> TableVector {
             TableVector points;
             float sinFactor = 10.0f * 0.01f;
             for (unsigned int z = 0; z < 15; ++z) {
@@ -44,33 +53,39 @@ namespace audio {
                 }
             }
             return points;
-        }, { new SinWave(), new SinWave(), new SinWave(), new SinWave() }));
-        waveTables.emplace_back(WaveTable("saw", []() -> TableVector {
-                TableVector points;
-                for (unsigned int z = 0; z < 15; ++z) {
-                    points.emplace_back();
-                    float y = -1.f;
-                    for (int x = 0; x < 200; ++x) {
-                        if (y >= 1.f) {
-                            y = -1.f;
-                        } else {
-                            y += 1.f / 25;
-                        }
-                        points.at(z).push_back(y);
+        }, { new SinWave(), new SinWave(), new SinWave(), new SawWave() })));
+        waveTables.push_back(std::move(WaveTable("saw", []() -> TableVector {
+            TableVector points;
+            for (unsigned int z = 0; z < 15; ++z) {
+                points.emplace_back();
+                float y = -1.f;
+                for (int x = 0; x < 200; ++x) {
+                    if (y >= 1.f) {
+                        y = -1.f;
+                    } else {
+                        y += 1.f / 25;
                     }
+                    points.at(z).push_back(y);
                 }
-                return points;
-            }, { new SawWave(), new SawWave(), new SawWave(), new SawWave() }));
+            }
+            return points;
+        }, { new SawWave(), new SawWave(), new SawWave(), new SawWave() })));
+    }
+
+    //TODO cache this shit
+    std::vector<WaveTable>& WaveTables::getWaveTables() {
         return waveTables;
     }
 
+    WaveTables* WaveTables::instance = nullptr;
 
-    /*WaveTable::WaveTable(WaveTable &&other)  {
-        this->name = std::move(other.name);
-        this->getWaveTablePresentation = other.getWaveTablePresentation;
-        this->waveTable = std::move(other.waveTable);
-    }*/
+    std::vector<WaveTable> WaveTables::waveTables;
+
 
     WaveTable::WaveTable(juce::String name, std::function<TableVector()> presentation, const std::initializer_list<Wave*>& waves)
             : name(name), getWaveTablePresentation(presentation), waveTable(waves) {}
+
+    WaveTable::WaveTable(WaveTable&& other)
+        : waveTable(std::move(other.waveTable)), name(other.name), getWaveTablePresentation(other.getWaveTablePresentation) {
+    }
 }
