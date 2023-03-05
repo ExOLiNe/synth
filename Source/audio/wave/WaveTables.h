@@ -8,10 +8,9 @@ namespace audio {
     class Wave {
     public:
         void shiftPhase(float offset);
-
-        virtual float generate(float frequency, float sampleRate) = 0;
+        virtual float generate(float frequency, float sampleRate, long long phaseOffset) = 0;
+        virtual Wave* clone() = 0;
         virtual ~Wave();
-
     protected:
         float output = 0.f;
         float phase = 0.f;
@@ -20,28 +19,54 @@ namespace audio {
 
     class SinWave : public Wave {
     public:
-        float generate(float frequency, float sampleRate) override;
+        SinWave();
+        float generate(float frequency, float sampleRate, long long phaseOffset) override;
+        Wave* clone() override;
         ~SinWave();
+    private:
+        SinWave(const SinWave& other) = default;
     };
 
     class SawWave : public Wave {
     public:
-        float generate(float frequency, float sampleRate) override;
+        SawWave();
+        float generate(float frequency, float sampleRate, long long phaseOffset) override;
+        Wave* clone() override;
         ~SawWave();
+    private:
+        SawWave(const SawWave& other) = default;
     };
 
     using TableVector = std::vector<std::vector<float>>;
 
     struct WaveTable {
+        WaveTable(juce::String name, std::function<TableVector()> presentation)
+                : name(name), getWaveTablePresentation(presentation) {}
+        WaveTable(const WaveTable& other) : name(other.name), getWaveTablePresentation(other.getWaveTablePresentation) {
+            waveTable.clear();
+            waveTable.reserve(other.waveTable.size());
+            for (auto* wave : other.waveTable) {
+                waveTable.push_back(wave->clone());
+            }
+        }
 
-        //WaveTable(WaveTable &&other);
+        void resetPhaseOffset() {
+            phaseOffset = 0;
+        }
 
-        WaveTable(juce::String name, std::function<TableVector()> presentation, const std::initializer_list<Wave*>& waves);
-        WaveTable(WaveTable&& other);
+        void shiftPhase() {
+            ++phaseOffset;
+        }
+
+        float generateSample(double frequency, double sampleRate, int waveIndex) {
+            return waveTable[waveIndex]->generate(frequency, sampleRate, phaseOffset);
+        }
+
+        long long phaseOffset = 0;
 
         juce::String name;
         std::function<TableVector()> getWaveTablePresentation;
-        juce::OwnedArray<Wave> waveTable;
+        std::vector<Wave*> waveTable;
     };
 
     class WaveTables {
@@ -49,7 +74,7 @@ namespace audio {
         WaveTables(WaveTables& other) = delete;
         void operator=(const WaveTables &) = delete;
         static WaveTables* getInstance();
-        std::vector<WaveTable>& getWaveTables();
+        std::vector<WaveTable> getWaveTables();
         ~WaveTables();
     private:
         static WaveTables* instance;

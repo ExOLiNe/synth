@@ -27,6 +27,7 @@ public:
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
 private:
     float getPanGain(Channel channel);
+    float getFloatWaveTablePos();
 
     const juce::AudioProcessorValueTreeState& apvts;
     const juce::String id;
@@ -34,13 +35,16 @@ private:
     juce::ADSR gainADSR;
     juce::ADSR::Parameters gainADSRParams;
 
-    std::vector<WaveTable>& waveTables;
+    std::vector<WaveTable> waveTables;
 
     const std::atomic<float> *gainAtomic, *panAtomic;
 
-    double frequency = 0.0;
-
     const std::atomic<float> *waveTableIndex, *waveTablePos;
+
+    int currentWaveTableIndex = -1;
+    WaveTable& currentWaveTable;
+
+    double frequency = 0.0;
 };
 
 }

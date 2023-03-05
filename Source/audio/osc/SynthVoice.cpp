@@ -14,7 +14,9 @@ namespace audio {
     waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
     waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
     gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
-    panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)) {
+    panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)),
+    currentWaveTableIndex((int)waveTableIndex->load()),
+    currentWaveTable(waveTables[(size_t)currentWaveTableIndex]) {
         gainADSRParams = {0.01f, 10.0f, 0.0f, 0.01f};
     }
 
@@ -25,6 +27,7 @@ namespace audio {
     void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound,
                                int currentPitchWheelPosition) {
         frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+        currentWaveTable.resetPhaseOffset();
         gainADSR.noteOn();
     }
 
@@ -47,19 +50,40 @@ namespace audio {
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
-        auto &table = waveTables[(size_t)waveTableIndex->load()];
-        auto waveIndex = static_cast<int>(std::round(waveTablePos->load() / 100 * (table.waveTable.size() - 1)));
-        auto wave = table.waveTable[waveIndex];
-        jassert(wave != nullptr);
+        auto loadedWaveTableIndex = (int)waveTableIndex->load();
+        if (currentWaveTableIndex != loadedWaveTableIndex) {
+            currentWaveTableIndex = loadedWaveTableIndex;
+            currentWaveTable = waveTables[(size_t)currentWaveTableIndex];
+        }
+
+        float floatWaveTablePos = getFloatWaveTablePos();
+        int upperWaveIndex = std::ceil(floatWaveTablePos);
+        int lowerWaveIndex = std::floor(floatWaveTablePos);
+
+        // Calculate gain factors of the nearest waves
+        float upperWaveGainFactor = floatWaveTablePos - (float)lowerWaveIndex;
+        float lowerWaveGainFactor = 1.0f - upperWaveGainFactor;
+
         auto writePtrL = outputBuffer.getWritePointer(0);
         auto writePtrR = outputBuffer.getWritePointer(1);
         for (unsigned int i = startSample; i < numSamples; ++i) {
+            currentWaveTable.shiftPhase();
             //TODO implement multivoice => for (int j = 0; j < voices; ++j)
-            float output = wave->generate(frequency, getSampleRate()) * 0.4f * (gainAtomic->load() / 100.0f);
+
+            // Morphing between the nearest waves
+            float upperOutput = currentWaveTable.generateSample(frequency, getSampleRate(), upperWaveIndex);
+            float lowerOutput = currentWaveTable.generateSample(frequency, getSampleRate(), lowerWaveIndex);
+            float output = upperOutput * upperWaveGainFactor + lowerOutput * lowerWaveGainFactor;
+
+            output *= 0.4f * (gainAtomic->load() / 100.0f);
             writePtrL[i] = output * getPanGain(Channel::LEFT);
             writePtrR[i] = output * getPanGain(Channel::RIGHT);
         }
         gainADSR.applyEnvelopeToBuffer(outputBuffer, startSample, numSamples);
+    }
+
+    float SynthVoice::getFloatWaveTablePos() {
+        return waveTablePos->load() / 100 * (currentWaveTable.waveTable.size() - 1);
     }
 
     float SynthVoice::getPanGain(Channel channel) {
