@@ -1,19 +1,17 @@
 #include "WaveTables.h"
 
 namespace audio {
-    void Wave::shiftPhase(float offset) {
-        phase += offset;
-    }
 
     Wave::~Wave() noexcept {
 
     }
 
-    float SinWave::generate(float frequency, float sampleRate, long long phaseOffset) {
-        auto factor = (1.0 / (sampleRate / (frequency))) * phaseOffset;
+    float SinWave::generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage) {
+        float samplesPerPhase = sampleRate / frequency;
+        float phaseOffsetSamples = samplesPerPhase * (phaseOffsetPercentage / 100.f);
+        auto factor = ((float)phaseShiftSamples + phaseOffsetSamples) / samplesPerPhase;
         factor = factor - (int)factor;
-        output = std::sin(factor * juce::MathConstants<float>::twoPi);
-        return output;
+        return std::sin(factor * juce::MathConstants<float>::twoPi);
     }
 
     SinWave::SinWave() {
@@ -32,8 +30,8 @@ namespace audio {
 
     }
 
-    float SawWave::generate(float frequency, float sampleRate, long long phaseOffset) {
-        auto factor = (1.0 / (sampleRate / (frequency))) * phaseOffset;
+    float SawWave::generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage) {
+        auto factor = (1.0 / (sampleRate / (frequency))) * phaseShiftSamples;
         factor = (factor - (int)factor - 1.0) * 2.0;
         return (float)factor;
     }

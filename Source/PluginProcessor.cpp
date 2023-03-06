@@ -34,7 +34,7 @@ SynthAudioProcessor::SynthAudioProcessor()
         oscillators.add(new juce::Synthesiser());
         oscillators[oscIndex]->clearVoices();
 
-        for (int j = 0; j < TOTAL_VOICES; ++j) {
+        for (int j = 0; j < TOTAL_SYNTH_VOICES; ++j) {
             oscillators[oscIndex]->addVoice(new audio::SynthVoice(treeState, oscIds[oscIndex]));
         }
 
@@ -169,7 +169,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         oscOutputBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
         oscillators[i]->renderNextBlock(oscOutputBuffer, midiMessages, 0, oscOutputBuffer.getNumSamples());
     }
-
+    auto start = std::chrono::high_resolution_clock::now();
     // Mix together
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
         float* writePtr = buffer.getWritePointer(channel);
@@ -180,6 +180,10 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             }
         }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = end - start;
+    timeAccum += duration.count();
+    times++;
 }
 
 //==============================================================================
@@ -261,8 +265,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         phase,
                         phase,
                         osc::phase.minValue,
-                        osc::voices.maxValue,
-                        osc::voices.defaultValue
+                        osc::phase.maxValue,
+                        osc::phase.defaultValue
                 ));
         params.emplace_back(
                 make_unique<Param_f> (

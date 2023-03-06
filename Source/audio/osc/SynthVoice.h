@@ -5,9 +5,16 @@
 #include <juce_dsp/juce_dsp.h>
 
 namespace audio {
+    struct EffectValues {
+        float previous;
+        float current;
+        void updatePrevious() {
+            previous = current;
+        }
+    };
 
     enum Channel {
-        LEFT, RIGHT
+        LEFT = 0, RIGHT = 1
     };
 
 class SynthVoice : public juce::SynthesiserVoice {
@@ -26,10 +33,13 @@ public:
                          int numSamples) override;
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
 private:
-    float getPanGain(Channel channel);
-    float getFloatWaveTablePos();
+    float getPanGain(const Channel& channel, float pan) const;
+    float getFloatWaveTablePos() const;
+    void updateSemitone();
+    void updateWaveTable();
+    float getFine() const;
+    float getSmoothValue(const EffectValues& values, int bufSize, int step) const;
 
-    const juce::AudioProcessorValueTreeState& apvts;
     const juce::String id;
 
     juce::ADSR gainADSR;
@@ -37,12 +47,16 @@ private:
 
     std::vector<WaveTable> waveTables;
 
-    const std::atomic<float> *gainAtomic, *panAtomic;
-
-    const std::atomic<float> *waveTableIndex, *waveTablePos;
+    const std::atomic<float> *waveTableIndex, *waveTablePos, *gainAtomic, *panAtomic,
+        *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic;
 
     int currentWaveTableIndex = -1;
     WaveTable& currentWaveTable;
+
+    int midiNote;
+    int previousSemitoneOffset = 0;
+
+    EffectValues fineValues, phaseValues, detuneValues, gainValues, panValues;
 
     double frequency = 0.0;
 };

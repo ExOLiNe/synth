@@ -134,13 +134,8 @@ public:
         renderMutex.unlock();
     }
 
-    /*void setZHighlight(int index) {
-        zHighlighted = index;
-    }*/
-
     void render() override {
-        unsigned int zHighlighted = ((static_cast<unsigned int>(zIndex->load()) / 100 * zSize) - 1);
-        //renderMutex.lock();
+        unsigned int zHighlighted = ((static_cast<unsigned int>(zIndex->load() / 100 * zSize) - 1));
         using namespace ::juce::gl;
 
         jassert(juce::OpenGLHelpers::isContextActive());

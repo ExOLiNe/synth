@@ -7,20 +7,16 @@
 namespace audio {
     class Wave {
     public:
-        void shiftPhase(float offset);
-        virtual float generate(float frequency, float sampleRate, long long phaseOffset) = 0;
+        virtual float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) = 0;
         virtual Wave* clone() = 0;
         virtual ~Wave();
-    protected:
-        float output = 0.f;
-        float phase = 0.f;
     };
 
 
     class SinWave : public Wave {
     public:
         SinWave();
-        float generate(float frequency, float sampleRate, long long phaseOffset) override;
+        float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
         Wave* clone() override;
         ~SinWave();
     private:
@@ -30,7 +26,7 @@ namespace audio {
     class SawWave : public Wave {
     public:
         SawWave();
-        float generate(float frequency, float sampleRate, long long phaseOffset) override;
+        float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
         Wave* clone() override;
         ~SawWave();
     private:
@@ -58,8 +54,8 @@ namespace audio {
             ++phaseOffset;
         }
 
-        float generateSample(double frequency, double sampleRate, int waveIndex) {
-            return waveTable[waveIndex]->generate(frequency, sampleRate, phaseOffset);
+        float generateSample(double frequency, double sampleRate, int waveIndex, float phaseOffsetPercentage) {
+            return waveTable[waveIndex]->generate(frequency, sampleRate, phaseOffset, phaseOffsetPercentage);
         }
 
         long long phaseOffset = 0;

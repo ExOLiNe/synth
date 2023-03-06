@@ -65,6 +65,9 @@ private:
     std::vector<juce::AudioBuffer<float>> oscOutputBuffers;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
     juce::AudioProcessorValueTreeState treeState;
+
+    long long timeAccum = 0;
+    long times = 0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
 };

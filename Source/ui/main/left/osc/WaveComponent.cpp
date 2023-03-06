@@ -9,7 +9,7 @@ WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce
 : waveTables(audio::WaveTables::getInstance()->getWaveTables()), wave(treeState, oscId) {
 
     {
-        int index = 0;
+         int index = 0;
         for (const auto &waveTable: waveTables) {
             selector.addItem(waveTable.name, ++index);
         }
