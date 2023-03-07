@@ -12,7 +12,7 @@ namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
 
     SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id):
-    id(id), waveTables(WaveTables::getInstance()->getWaveTables()),
+    id(id), waveTables(WaveTables::getInstance()->copyWaveTables()),
     waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
     waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
     gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
@@ -135,7 +135,8 @@ namespace audio {
     }
 
     void SynthVoice::updateWaveTable() {
-        auto loadedWaveTableIndex = (int)waveTableIndex->load();
+        auto loadedWaveTableIndex = (int)waveTableIndex->load() - 1;
+        if (loadedWaveTableIndex == -1) loadedWaveTableIndex = 0;
         if (currentWaveTableIndex != loadedWaveTableIndex) {
             currentWaveTableIndex = loadedWaveTableIndex;
             currentWaveTable = waveTables[(size_t)currentWaveTableIndex];

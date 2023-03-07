@@ -10,8 +10,7 @@ namespace audio {
         float samplesPerPhase = sampleRate / frequency;
         float phaseOffsetSamples = samplesPerPhase * (phaseOffsetPercentage / 100.f);
         auto factor = ((float)phaseShiftSamples + phaseOffsetSamples) / samplesPerPhase;
-        factor = factor - (int)factor;
-        return std::sin(factor * juce::MathConstants<float>::twoPi);
+        return std::sin((factor - (int)factor) * juce::MathConstants<float>::twoPi);
     }
 
     SinWave::SinWave() {
@@ -56,8 +55,9 @@ namespace audio {
     }
 
     WaveTables::WaveTables() {
+        waveTables.reserve(2);
         {
-            WaveTable waveTable = WaveTable("sin", []() -> TableVector {
+            /*WaveTable waveTable("sin", []() -> TableVector {
                 TableVector points;
                 float sinFactor = 10.0f * 0.01f;
                 for (unsigned int z = 0; z < 15; ++z) {
@@ -68,15 +68,22 @@ namespace audio {
                     }
                 }
                 return points;
-            });
-            waveTable.waveTable.push_back(new SinWave());
-            waveTable.waveTable.push_back(new SinWave());
-            waveTable.waveTable.push_back(new SinWave());
-            waveTable.waveTable.push_back(new SawWave());
-            waveTables.push_back(waveTable);
+            });*/
+            waveTables.emplace_back("sin", []() -> TableVector {
+                TableVector points;
+                float sinFactor = 10.0f * 0.01f;
+                for (unsigned int z = 0; z < 15; ++z) {
+                    points.emplace_back();
+                    for (int x = 0; x < 200; ++x) {
+                        float y = std::sin((float) x * sinFactor);
+                        points.at(z).push_back(y);
+                    }
+                }
+                return points;
+            }, std::vector<Wave*> { new SinWave(), new SinWave(), new SinWave(), new SawWave() });
         }
         {
-            WaveTable waveTable = WaveTable("saw", []() -> TableVector {
+            /*WaveTable waveTable("saw", []() -> TableVector {
                 TableVector points;
                 for (unsigned int z = 0; z < 15; ++z) {
                     points.emplace_back();
@@ -91,33 +98,38 @@ namespace audio {
                     }
                 }
                 return points;
-            });
-            waveTable.waveTable.push_back(new SawWave());
-            waveTable.waveTable.push_back(new SawWave());
-            waveTable.waveTable.push_back(new SawWave());
-            waveTable.waveTable.push_back(new SawWave());
-            waveTables.push_back(waveTable);
+            });*/
+            waveTables.emplace_back("saw", []() -> TableVector {
+                TableVector points;
+                for (unsigned int z = 0; z < 15; ++z) {
+                    points.emplace_back();
+                    float y = -1.f;
+                    for (int x = 0; x < 200; ++x) {
+                        if (y >= 1.f) {
+                            y = -1.f;
+                        } else {
+                            y += 1.f / 25;
+                        }
+                        points.at(z).push_back(y);
+                    }
+                }
+                return points;
+            }, std::vector<Wave*> { new SawWave(), new SawWave(), new SawWave(), new SawWave() });
         }
     }
 
     //TODO cache this shit
-    std::vector<WaveTable> WaveTables::getWaveTables() {
+    std::vector<WaveTable> WaveTables::copyWaveTables() {
         return waveTables;
+    }
+
+
+
+    size_t WaveTables::getTotal() const {
+        return waveTables.size();
     }
 
     WaveTables* WaveTables::instance = nullptr;
 
     std::vector<WaveTable> WaveTables::waveTables;
-
-
-    /*WaveTable::WaveTable(juce::String name, std::function<TableVector()> presentation, Ts... wavesConstructor)
-            : name(name), getWaveTablePresentation(presentation), waveTable(wavesConstructor) {}*/
-
-    /*WaveTable::WaveTable(WaveTable &other) : name(other.name), getWaveTablePresentation(other.getWaveTablePresentation) {
-        waveTable.clear();
-    }
-
-    WaveTable::WaveTable(WaveTable&& other)
-        : waveTable(std::move(other.waveTable)), name(other.name), getWaveTablePresentation(other.getWaveTablePresentation) {
-    }*/
 }

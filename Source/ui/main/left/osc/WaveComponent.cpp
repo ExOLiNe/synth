@@ -6,25 +6,32 @@
 #include "../../../../other/Grid.h"
 
 WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId)
-: waveTables(audio::WaveTables::getInstance()->getWaveTables()), wave(treeState, oscId) {
+: waveTables(audio::WaveTables::getInstance()->copyWaveTables()), wave(treeState, oscId) {
 
     {
-         int index = 0;
+        int index = 0;
         for (const auto &waveTable: waveTables) {
-            selector.addItem(waveTable.name, ++index);
+            selector.addItem(waveTable.presentation.name, ++index);
         }
     }
 
-    selectWaveTable(0, true);
+    selectWaveTable(1, true);
 
     addAndMakeVisible(wave);
 
     selector.addListener(this);
     addAndMakeVisible(selector);
+
+    bindLayoutsToTree(treeState, oscId);
 }
 
 WaveComponent::~WaveComponent() noexcept {
 
+}
+
+void WaveComponent::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String &oscId) {
+    selectorValue = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
+            apvts, oscId + params::osc::waveTableTypeName, selector);
 }
 
 void WaveComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) {
@@ -32,7 +39,7 @@ void WaveComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) {
 }
 
 void WaveComponent::selectWaveTable(int index, bool reselect) {
-    wave.setData(waveTables.at(index).getWaveTablePresentation());
+    wave.setData(waveTables.at(index).presentation.function());
     if (reselect) {
         selector.setSelectedItemIndex(index, juce::NotificationType::dontSendNotification);
     }

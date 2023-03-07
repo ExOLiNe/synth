@@ -163,13 +163,15 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 {
     buffer.clear();
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     for (int i = 0; i < oscillators.size(); ++i) {
         juce::AudioBuffer<float>& oscOutputBuffer = oscOutputBuffers[i];
         oscOutputBuffer.clear();
         oscOutputBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
         oscillators[i]->renderNextBlock(oscOutputBuffer, midiMessages, 0, oscOutputBuffer.getNumSamples());
     }
-    auto start = std::chrono::high_resolution_clock::now();
+
     // Mix together
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
         float* writePtr = buffer.getWritePointer(channel);
@@ -181,8 +183,8 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         }
     }
     auto end = std::chrono::high_resolution_clock::now();
-    auto duration = end - start;
-    timeAccum += duration.count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    timeAccum += duration;
     times++;
 }
 
@@ -234,7 +236,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
 
     using namespace params;
 
-    size_t waveTableTypesTotal = audio::WaveTables::getInstance()->getWaveTables().size();
+    size_t waveTableTypesTotal = audio::WaveTables::getInstance()->getTotal();
     for (auto const &oscId : oscillators) {
         string waveTableTypeName = oscId + osc::waveTableTypeName;
         string voicesName = oscId + osc::voices.name;
