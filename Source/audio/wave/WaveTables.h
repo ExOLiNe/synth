@@ -2,14 +2,13 @@
 
 #include <vector>
 #include "juce_core/juce_core.h"
-//#include "../../other/polymorphic_readonly_array.h"
+#include "../../other/polymorphic_readonly_array.h"
 #include <cmath>
 
 namespace audio {
     class Wave {
     public:
         virtual float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) = 0;
-        virtual Wave* clone() = 0;
         virtual ~Wave();
     };
 
@@ -17,21 +16,17 @@ namespace audio {
     class SinWave : public Wave {
     public:
         SinWave();
+        SinWave(const SinWave& other) = delete;
         float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
-        Wave* clone() override;
-        ~SinWave();
-    private:
-        SinWave(const SinWave& other) = default;
+        ~SinWave() override;
     };
 
     class SawWave : public Wave {
     public:
         SawWave();
+        SawWave(const SawWave& other) = delete;
         float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
-        Wave* clone() override;
-        ~SawWave();
-    private:
-        SawWave(const SawWave& other) = default;
+        ~SawWave() override;
     };
 
     using TableVector = std::vector<std::vector<float>>;
@@ -41,24 +36,9 @@ namespace audio {
             juce::String name;
             std::function<TableVector()> function;
         };
-        /*WaveTable(juce::String name, std::function<TableVector()> function)
-                : name(name), getWaveTablePresentation(function) {}*/
+
         WaveTable(juce::String name, std::function<TableVector()> function, std::vector<Wave*>&& table)
-                : presentation { name, function }, waveTable(table) {}
-        WaveTable(const WaveTable& other) : presentation(other.presentation) {
-            waveTable.clear();
-            waveTable.reserve(other.waveTable.size());
-            for (auto* wave : other.waveTable) {
-                waveTable.push_back(wave->clone());
-            }
-            jassertfalse;
-        }
-        /*WaveTable(const WaveTable& other) {
-            for (auto* wave : other.waveTable) {
-                waveTable.push_back(wave->clone());
-            }
-            DBG("CALL!\n");
-        }*/
+                : presentation { name, function }, waveTable(std::move(table)) {}
 
         void resetPhaseOffset() {
             phaseOffset = 0;
@@ -69,12 +49,11 @@ namespace audio {
         }
 
         float generateSample(double frequency, double sampleRate, int waveIndex, float phaseOffsetPercentage) {
-            return waveTable[waveIndex]->generate(frequency, sampleRate, phaseOffset, phaseOffsetPercentage);
+            return waveTable[waveIndex]->generate((float)frequency, (float)sampleRate, phaseOffset, phaseOffsetPercentage);
         }
 
         WaveTablePresentation presentation;
-        //TODO CREATE SEPARATE CLASS FOR waveTable WITH generateSample and so on ENCAPSULATED IN IT
-        std::vector<Wave*> waveTable;
+        polymorphic_readonly_array<Wave, SinWave, SawWave> waveTable;
 
     private:
         long long phaseOffset = 0;

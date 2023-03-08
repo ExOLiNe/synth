@@ -62,32 +62,36 @@ namespace audio {
             return;
         }
 
+        currentVoiceBuffer.clear();
+        if (currentVoiceBuffer.getNumSamples() < numSamples) {
+            currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
+        }
+        auto voicePtrL = currentVoiceBuffer.getWritePointer(Channel::LEFT);
+        auto voicePtrR = currentVoiceBuffer.getWritePointer(Channel::RIGHT);
+
         updateSemitone();
         updateWaveTable();
 
         const float floatWaveTablePos = getFloatWaveTablePos();
-        const int upperWaveIndex = std::ceil(floatWaveTablePos);
-        const int lowerWaveIndex = std::floor(floatWaveTablePos);
+        const int upperWaveIndex = (int)std::ceil(floatWaveTablePos);
+        const int lowerWaveIndex = (int)std::floor(floatWaveTablePos);
 
         // Calculate gain factors of the nearest waves
         const float upperWaveGainFactor = floatWaveTablePos - (float)lowerWaveIndex;
         const float lowerWaveGainFactor = 1.0f - upperWaveGainFactor;
-
-        auto writePtrL = outputBuffer.getWritePointer(Channel::LEFT);
-        auto writePtrR = outputBuffer.getWritePointer(Channel::RIGHT);
 
         fineValues.current = getFine();
         phaseValues.current = phaseAtomic->load();
         detuneValues.current = detuneAtomic->load();
         gainValues.current = gainAtomic->load();
         panValues.current = panAtomic->load();
-        const int voices = voicesAtomic->load();
+        const int voices = (int)voicesAtomic->load();
 
-        for (unsigned int i = startSample; i < numSamples; ++i) {
-            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i - startSample);
+        for (int i = 0; i < numSamples; ++i) {
+            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i);
             currentWaveTable.shiftPhase();
-            const float phaseOffset = getSmoothValue(phaseValues, numSamples, i - startSample);
-            const float detune = getSmoothValue(detuneValues, numSamples, i - startSample);
+            const float phaseOffset = getSmoothValue(phaseValues, numSamples, i);
+            const float detune = getSmoothValue(detuneValues, numSamples, i);
             float output = 0.0;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
                 const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * (voices / 2 - voiceIndex));
@@ -104,12 +108,20 @@ namespace audio {
             output /= voices;
 
             // gain & pan
-            output *= 0.4f * (getSmoothValue(gainValues, numSamples, i - startSample) / 100.0f);
-            const float pan = getSmoothValue(panValues, numSamples, i - startSample);
-            writePtrL[i] += output * getPanGain(Channel::LEFT, pan);
-            writePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
+            output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
+            const float pan = getSmoothValue(panValues, numSamples, i);
+            voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
+            voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
-        gainADSR.applyEnvelopeToBuffer(outputBuffer, startSample, numSamples);
+        gainADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
+
+        auto outputPtrL = outputBuffer.getWritePointer(Channel::LEFT);
+        auto outputPtrR = outputBuffer.getWritePointer(Channel::RIGHT);
+
+        for (int i = 0; i < numSamples; ++i) {
+            outputPtrL[i + startSample] += voicePtrL[i];
+            outputPtrR[i + startSample] += voicePtrR[i];
+        }
 
         fineValues.updatePrevious();
         phaseValues.updatePrevious();

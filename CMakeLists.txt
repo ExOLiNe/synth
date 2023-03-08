@@ -96,3 +96,10 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+option(BUILD_UNIT_TESTS "Build tests" ON)
+
+if (BUILD_UNIT_TESTS)
+    enable_testing()
+    add_subdirectory(Tests)
+endif()

@@ -2,6 +2,7 @@
 
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "../wave/WaveTables.h"
+#include "../../other/polymorphic_readonly_array.h"
 #include <juce_dsp/juce_dsp.h>
 
 namespace audio {
@@ -45,12 +46,11 @@ private:
     juce::ADSR gainADSR;
     juce::ADSR::Parameters gainADSRParams;
 
-    std::vector<WaveTable> waveTables;
-
     const std::atomic<float> *waveTableIndex, *waveTablePos, *gainAtomic, *panAtomic,
         *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic;
 
     int currentWaveTableIndex = -1;
+    std::vector<WaveTable> waveTables;
     WaveTable& currentWaveTable;
 
     int midiNote;
@@ -59,6 +59,8 @@ private:
     EffectValues fineValues, phaseValues, detuneValues, gainValues, panValues;
 
     double frequency = 0.0;
+
+    juce::AudioBuffer<float> currentVoiceBuffer;
 };
 
 }

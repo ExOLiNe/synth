@@ -12,7 +12,7 @@
 #define LFO1 ENV_MENU_TOPIC".lfo1"
 #define LFO2 ENV_MENU_TOPIC".lfo2"
 
-#define TOTAL_SYNTH_VOICES 1
+#define TOTAL_SYNTH_VOICES 7
 #define TOTAL_DETUNE_VOICES 12
 
 #define OSC1 "osc1"

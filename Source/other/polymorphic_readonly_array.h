@@ -2,25 +2,55 @@
 
 #include <vector>
 
-template<size_t total, typename Parent, typename ...Children>
+template<typename Parent, typename ...Children>
 class polymorphic_readonly_array {
 public:
-    explicit polymorphic_readonly_array(std::array<Parent*, total>&& array) : maxSize(max_size<Children...>::value()), totalElements(total) {
+    /*explicit polymorphic_readonly_array(std::array<Parent*, total>&& array) : maxSize(max_size<Children...>::value()), totalElements(total) {
         //static_assert(is_copy_constructible<Children...>::value());
 
         rawData = new char[total * maxSize];
         swapData<decltype(array), true>(std::move(array));
+    }*/
+
+    explicit polymorphic_readonly_array(std::vector<Parent*>&& vector)
+        : maxSize(max_size<Children...>::value()), totalElements(vector.size()), capacity(maxSize * totalElements) {
+        rawData = new char[capacity];
+        swapData<decltype(vector), true>(std::move(vector));
     }
 
-    polymorphic_readonly_array(const polymorphic_readonly_array& other) : maxSize(other.maxSize), totalElements(other.totalElements) {
-        rawData = new char[totalElements * maxSize];
+    polymorphic_readonly_array(const std::vector<Parent*>& vector)
+        : maxSize(max_size<Children...>::value()), totalElements(vector.size()), capacity(maxSize * totalElements) {
+        rawData = new char[capacity];
+        swapData<decltype(vector), true>(vector);
+    }
+
+    polymorphic_readonly_array(const polymorphic_readonly_array& other)
+        : maxSize(other.maxSize), totalElements(other.totalElements) {
+        maxSize = other.maxSize;
+        totalElements = other.totalElements;
+        capacity = maxSize * totalElements;
+        rawData = new char[capacity];
         swapData(other.vector);
     }
 
-    polymorphic_readonly_array(polymorphic_readonly_array&& other) noexcept : vector(other.vector), maxSize(other.maxSize), totalElements(other.totalElements) {
+    polymorphic_readonly_array(polymorphic_readonly_array&& other) noexcept
+        : vector(other.vector), maxSize(other.maxSize), totalElements(other.totalElements), rawData(other.rawData) {
     }
 
-    polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) = delete;
+    //polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) = delete;
+    polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) {
+        if (this != &other) {
+            if (capacity < other.totalElements * other.maxSize) {
+                delete[] rawData;
+                totalElements = other.totalElements;
+                maxSize = other.maxSize;
+                capacity = other.totalElements * other.maxSize;
+                rawData = new char[capacity];
+            }
+            swapData(other.vector);
+        }
+        return *this;
+    }
 
     polymorphic_readonly_array& operator=(polymorphic_readonly_array&& other) = delete;
 
@@ -31,14 +61,20 @@ public:
     Parent* operator[](int index) {
         return vector[index];
     }
+
+    size_t size() {
+        return vector.size();
+    }
 private:
-    const size_t maxSize;
-    const size_t totalElements;
+    size_t maxSize;
+    size_t totalElements;
+    size_t capacity;
     std::vector<Parent*> vector;
     void* rawData;
 
     template<typename Container, bool deletePointersData = false>
     void swapData(Container&& container) {
+        vector.clear();
         vector.reserve(totalElements);
         for (int i = 0; i < totalElements; ++i) {
             std::memcpy((void*)((char*) rawData + maxSize * i), container[i], sizeof(container[i]));

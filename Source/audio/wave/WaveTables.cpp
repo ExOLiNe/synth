@@ -21,25 +21,18 @@ namespace audio {
 
     }
 
-    Wave *SinWave::clone() {
-        return new SinWave(*this);
-    }
-
     SawWave::SawWave() {
 
     }
 
     float SawWave::generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage) {
+        //TODO phaseOffsetPercentage
         auto factor = (1.0 / (sampleRate / (frequency))) * phaseShiftSamples;
         factor = (factor - (int)factor - 1.0) * 2.0;
         return (float)factor;
     }
     SawWave::~SawWave() noexcept {
 
-    }
-
-    Wave *SawWave::clone() {
-        return new SawWave(*this);
     }
 
 
@@ -57,18 +50,6 @@ namespace audio {
     WaveTables::WaveTables() {
         waveTables.reserve(2);
         {
-            /*WaveTable waveTable("sin", []() -> TableVector {
-                TableVector points;
-                float sinFactor = 10.0f * 0.01f;
-                for (unsigned int z = 0; z < 15; ++z) {
-                    points.emplace_back();
-                    for (int x = 0; x < 200; ++x) {
-                        float y = std::sin((float) x * sinFactor);
-                        points.at(z).push_back(y);
-                    }
-                }
-                return points;
-            });*/
             waveTables.emplace_back("sin", []() -> TableVector {
                 TableVector points;
                 float sinFactor = 10.0f * 0.01f;
@@ -83,22 +64,6 @@ namespace audio {
             }, std::vector<Wave*> { new SinWave(), new SinWave(), new SinWave(), new SawWave() });
         }
         {
-            /*WaveTable waveTable("saw", []() -> TableVector {
-                TableVector points;
-                for (unsigned int z = 0; z < 15; ++z) {
-                    points.emplace_back();
-                    float y = -1.f;
-                    for (int x = 0; x < 200; ++x) {
-                        if (y >= 1.f) {
-                            y = -1.f;
-                        } else {
-                            y += 1.f / 25;
-                        }
-                        points.at(z).push_back(y);
-                    }
-                }
-                return points;
-            });*/
             waveTables.emplace_back("saw", []() -> TableVector {
                 TableVector points;
                 for (unsigned int z = 0; z < 15; ++z) {
@@ -118,7 +83,6 @@ namespace audio {
         }
     }
 
-    //TODO cache this shit
     std::vector<WaveTable> WaveTables::copyWaveTables() {
         return waveTables;
     }

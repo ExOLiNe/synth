@@ -99,12 +99,12 @@ public:
 
         float maxValueByAbs = 0;
 
-        for (unsigned int z = 0; z < zSize; ++z) {
+        for (size_t z = 0; z < zSize; ++z) {
             float zPos = normalizeIndex(z, zSize);
 
             jassert(data.at(z).size() == xSize);
 
-            for (unsigned int x = 0; x < xSize; ++x) {
+            for (size_t x = 0; x < xSize; ++x) {
                 float xPos = normalizeIndex(x, xSize);
                 float y = data.at(z).at(x);
                 float yAbs = std::abs(y);
@@ -119,7 +119,7 @@ public:
             vertex[1] /= maxValueByAbs;
         });
 
-        for (unsigned int z = 0; z < zSize - 1; ++z) {
+        for (size_t z = 0; z < zSize - 1; ++z) {
             for (unsigned int x = 0; x < xSize - 1; ++x) {
                 indices.push_back((xSize * z) + x);
                 indices.push_back((xSize * z) + x + 1);
@@ -331,7 +331,7 @@ private:
         }
     };
 
-    static inline float normalizeIndex(const unsigned int index, const unsigned int total) {
+    static inline float normalizeIndex(const size_t index, const size_t total) {
         return -1 + (float(index) / ((float)total - 1)) * 2;
     }
 
@@ -339,8 +339,8 @@ private:
     std::vector<GLuint> indices;
 
     //unsigned int zHighlighted = 0;
-    unsigned int xSize;
-    unsigned int zSize;
+    size_t xSize;
+    size_t zSize;
 
     int frame = 0;
     bool prepare = false;
