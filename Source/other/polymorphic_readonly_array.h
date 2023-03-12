@@ -12,10 +12,11 @@ public:
         swapData<decltype(array), true>(std::move(array));
     }*/
 
-    explicit polymorphic_readonly_array(std::vector<Parent*>&& vector)
-        : maxSize(max_size<Children...>::value()), totalElements(vector.size()), capacity(maxSize * totalElements) {
+    template<typename Container>
+    explicit polymorphic_readonly_array(Container&& container)
+        : maxSize(max_size<Children...>::value()), totalElements(container.size()), capacity(maxSize * totalElements) {
         rawData = new char[capacity];
-        swapData<decltype(vector), true>(std::move(vector));
+        swapData<decltype(container), true>(std::move(container));
     }
 
     polymorphic_readonly_array(const std::vector<Parent*>& vector)
@@ -59,10 +60,10 @@ public:
     }
 
     Parent* operator[](int index) {
-        return vector[index];
+        return vector[index] ;
     }
 
-    size_t size() {
+    size_t size() const {
         return vector.size();
     }
 private:

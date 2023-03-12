@@ -202,15 +202,18 @@ juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
 //==============================================================================
 void SynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = treeState.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void SynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName (treeState.state.getType()))
+            treeState.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 //==============================================================================
@@ -388,12 +391,57 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
     }
 
-    vector<string> adsrs = { ADSR_VOLUME, ADSR_1, ADSR_2 };
+    vector<string> adsrs = { ADSR_1, ADSR_2 };
     for (auto const &adsrId : adsrs) {
         string attack = adsrId + adsr::attack.name;
         string decay = adsrId + adsr::decay.name;
         string sustain = adsrId + adsr::sustain.name;
         string release = adsrId + adsr::release.name;
+
+        params.emplace_back(
+                make_unique<Param_f> (
+                        attack,
+                        attack,
+                        adsr::attack.minValue,
+                        adsr::attack.maxValue,
+                        adsr::attack.defaultValue
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f> (
+                        decay,
+                        decay,
+                        adsr::decay.minValue,
+                        adsr::decay.maxValue,
+                        adsr::decay.defaultValue
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_i> (
+                        sustain,
+                        sustain,
+                        adsr::sustain.minValue,
+                        adsr::sustain.maxValue,
+                        adsr::sustain.defaultValue
+                )
+        );
+
+        params.emplace_back(
+                make_unique<Param_i> (
+                        release,
+                        release,
+                        adsr::release.minValue,
+                        adsr::release.maxValue,
+                        adsr::release.defaultValue
+                )
+        );
+    }
+
+    {
+        string attack = params::volumeADSRName + adsr::attack.name;
+        string decay = params::volumeADSRName + adsr::decay.name;
+        string sustain = params::volumeADSRName + adsr::sustain.name;
+        string release = params::volumeADSRName + adsr::release.name;
 
         params.emplace_back(
                 make_unique<Param_f> (

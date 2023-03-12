@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 #define TOP_MENU_TOPIC "top_menu.panel"
 #define MAIN_PANEL TOP_MENU_TOPIC".main"
@@ -6,11 +7,11 @@
 #define MASTER_PANEL TOP_MENU_TOPIC".master"
 
 #define ENV_MENU_TOPIC "env_menu.panel"
-#define VOLUME_ADSR ENV_MENU_TOPIC".volume_adsr"
-#define ADSR1 ENV_MENU_TOPIC".adsr1"
-#define ADSR2 ENV_MENU_TOPIC".adsr2"
-#define LFO1 ENV_MENU_TOPIC".lfo1"
-#define LFO2 ENV_MENU_TOPIC".lfo2"
+#define VOLUME_ADSR_TOPIC ENV_MENU_TOPIC".volume_adsr"
+#define ADSR1_TOPIC ENV_MENU_TOPIC".adsr1"
+#define ADSR2_TOPIC ENV_MENU_TOPIC".adsr2"
+#define LFO1_TOPIC ENV_MENU_TOPIC".lfo1"
+#define LFO2_TOPIC ENV_MENU_TOPIC".lfo2"
 
 #define TOTAL_SYNTH_VOICES 7
 #define TOTAL_DETUNE_VOICES 12
@@ -27,13 +28,14 @@
 #define ADSR_VOLUME "volumeADSR"
 #define ADSR_1 "ADSR1"
 #define ADSR_2 "ADSR2"
-#define LFO_1 "LFO1"
-#define LFO_2 "LFO2"
-
+#define LFO_1 "LFO1_TOPIC"
+#define LFO_2 "LFO2_TOPIC"
 
 using Str = const char*;
 
 namespace params {
+    extern std::string volumeADSRName;
+
     template <typename Type>
     struct Param {
         Str name;
@@ -76,6 +78,11 @@ namespace params {
         extern Param<float> decay;
         extern Param<float> sustain;
         extern Param<float> release;
+
+        extern float attackFactor;
+        extern float decayFactor;
+        extern float sustainFactor;
+        extern float releaseFactor;
     }
 
     namespace lfo {

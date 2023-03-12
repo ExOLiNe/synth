@@ -23,8 +23,11 @@ namespace audio {
     semitoneAtomic(apvts.getRawParameterValue(id + params::osc::semitone.name)),
     fineAtomic(apvts.getRawParameterValue(id + params::osc::fine.name)),
     currentWaveTableIndex((int)waveTableIndex->load()),
-    currentWaveTable(waveTables[(size_t)currentWaveTableIndex]) {
-        gainADSRParams = {0.01f, 10.0f, 0.0f, 0.01f};
+    volumeAttack(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::attack.name)),
+    volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
+    volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
+    volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)) {
+
     }
 
     bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound) {
@@ -35,12 +38,14 @@ namespace audio {
                                int currentPitchWheelPosition) {
         midiNote = midiNoteNumber;
         frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)semitoneAtomic->load());
-        currentWaveTable.resetPhaseOffset();
-        gainADSR.noteOn();
+        for (auto & table : waveTables) {
+            table.resetPhaseOffset();
+        }
+        volumeADSR.noteOn();
     }
 
     void SynthVoice::stopNote(float velocity, bool allowTailOff) {
-        gainADSR.noteOff();
+        volumeADSR.noteOff();
     }
 
     void SynthVoice::pitchWheelMoved(int newPitchWheelValue) {
@@ -52,9 +57,9 @@ namespace audio {
     }
 
     void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels) {
-        gainADSR.setSampleRate(sampleRate);
-        gainADSR.setParameters(gainADSRParams);
-        gainADSR.reset();
+        volumeADSR.setSampleRate(sampleRate);
+        volumeADSR.setParameters(volumeADSRParams);
+        volumeADSR.reset();
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
@@ -66,13 +71,22 @@ namespace audio {
         if (currentVoiceBuffer.getNumSamples() < numSamples) {
             currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
         }
+
+        fineValues.updatePrevious();
+        phaseValues.updatePrevious();
+        detuneValues.updatePrevious();
+        gainValues.updatePrevious();
+        panValues.updatePrevious();
+        updateADSR();
+        updateSemitone();
+        updateWaveTableIndex();
+
         auto voicePtrL = currentVoiceBuffer.getWritePointer(Channel::LEFT);
         auto voicePtrR = currentVoiceBuffer.getWritePointer(Channel::RIGHT);
 
-        updateSemitone();
-        updateWaveTable();
+        WaveTable& currentWaveTable = waveTables[currentWaveTableIndex];
 
-        const float floatWaveTablePos = getFloatWaveTablePos();
+        const float floatWaveTablePos = getFloatWaveTablePos(currentWaveTable);
         const int upperWaveIndex = (int)std::ceil(floatWaveTablePos);
         const int lowerWaveIndex = (int)std::floor(floatWaveTablePos);
 
@@ -113,7 +127,8 @@ namespace audio {
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
-        gainADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
+
+        volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 
         auto outputPtrL = outputBuffer.getWritePointer(Channel::LEFT);
         auto outputPtrR = outputBuffer.getWritePointer(Channel::RIGHT);
@@ -123,20 +138,27 @@ namespace audio {
             outputPtrR[i + startSample] += voicePtrR[i];
         }
 
-        fineValues.updatePrevious();
-        phaseValues.updatePrevious();
-        detuneValues.updatePrevious();
-        gainValues.updatePrevious();
-        panValues.updatePrevious();
+#ifdef DEBUG_BUFFERS
+        outputPtrL[numSamples - 1] = -2.f * gainValues.current;
+        outputPtrR[numSamples - 1] = -2.f * gainValues.current;
+#endif
     }
 
-    float SynthVoice::getFloatWaveTablePos() const {
-        return waveTablePos->load() / 100 * (currentWaveTable.waveTable.size() - 1);
+    float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable) const {
+        return waveTablePos->load() / 100 * (waveTable.waveTable.size() - 1);
     }
 
     float SynthVoice::getPanGain(const Channel& channel, float pan) const {
         float direction = channel == Channel::LEFT ? -1.0f : 1.0f;
         return (direction * pan + 1) / 2.0f;
+    }
+
+    void SynthVoice::updateADSR() {
+        volumeADSRParams.attack = volumeAttack->load() * params::adsr::attackFactor;
+        volumeADSRParams.decay = volumeDecay->load() * params::adsr::decayFactor;
+        volumeADSRParams.sustain = volumeSustain->load() * params::adsr::sustainFactor;
+        volumeADSRParams.release = volumeRelease->load() * params::adsr::releaseFactor;
+        volumeADSR.setParameters(volumeADSRParams);
     }
 
     void SynthVoice::updateSemitone() {
@@ -146,26 +168,14 @@ namespace audio {
         }
     }
 
-    void SynthVoice::updateWaveTable() {
-        auto loadedWaveTableIndex = (int)waveTableIndex->load() - 1;
-        if (loadedWaveTableIndex == -1) loadedWaveTableIndex = 0;
-        if (currentWaveTableIndex != loadedWaveTableIndex) {
-            currentWaveTableIndex = loadedWaveTableIndex;
-            currentWaveTable = waveTables[(size_t)currentWaveTableIndex];
-        }
+    void SynthVoice::updateWaveTableIndex() {
+        currentWaveTableIndex = (int)waveTableIndex->load() - 1;
+        if (currentWaveTableIndex == -1) currentWaveTableIndex = 0;
     }
 
     float SynthVoice::getFine() const {
         return (float)std::pow(fineFactor, fineAtomic->load());
     }
 
-    float SynthVoice::getSmoothValue(const EffectValues& values, int bufSize, int step) const {
-        jassert(bufSize > 0);
-        if (std::abs(values.previous - values.current) <= 0.001f) {
-            return values.current;
-        } else {
-            auto stepSize = (values.current - values.previous) / bufSize;
-            return values.previous + stepSize * step;
-        }
-    }
+    //float SynthVoice::getSmoothValue(const EffectValues& values, int bufSize, int step)
 }

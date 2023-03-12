@@ -98,6 +98,7 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_warning_flags)
 
 option(BUILD_UNIT_TESTS "Build tests" ON)
+#add_compile_definitions(DEBUG_BUFFERS)
 
 if (BUILD_UNIT_TESTS)
     enable_testing()

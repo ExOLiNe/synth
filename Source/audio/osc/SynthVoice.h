@@ -6,13 +6,25 @@
 #include <juce_dsp/juce_dsp.h>
 
 namespace audio {
+    template<typename T>
     struct EffectValues {
-        float previous;
-        float current;
+        T previous;
+        T current;
         void updatePrevious() {
             previous = current;
         }
     };
+
+    template<typename T>
+    T getSmoothValue(const EffectValues<T>& values, int bufSize, int step) {
+        jassert(bufSize > 0);
+        if (std::abs(values.previous - values.current) <= 0.001f) {
+            return values.current;
+        } else {
+            auto stepSize = (values.current - values.previous) / bufSize;
+            return values.previous + stepSize * step;
+        }
+    }
 
     enum Channel {
         LEFT = 0, RIGHT = 1
@@ -35,28 +47,29 @@ public:
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
 private:
     float getPanGain(const Channel& channel, float pan) const;
-    float getFloatWaveTablePos() const;
+    float getFloatWaveTablePos(const WaveTable& waveTable) const;
     void updateSemitone();
-    void updateWaveTable();
+    void updateWaveTableIndex();
     float getFine() const;
-    float getSmoothValue(const EffectValues& values, int bufSize, int step) const;
+    void updateADSR();
 
     const juce::String id;
 
-    juce::ADSR gainADSR;
-    juce::ADSR::Parameters gainADSRParams;
+    juce::ADSR volumeADSR;
+    juce::ADSR::Parameters volumeADSRParams;
 
     const std::atomic<float> *waveTableIndex, *waveTablePos, *gainAtomic, *panAtomic,
         *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic;
 
+    std::atomic<float> *volumeAttack, *volumeDecay, *volumeSustain, *volumeRelease;
+
     int currentWaveTableIndex = -1;
     std::vector<WaveTable> waveTables;
-    WaveTable& currentWaveTable;
 
     int midiNote;
     int previousSemitoneOffset = 0;
 
-    EffectValues fineValues, phaseValues, detuneValues, gainValues, panValues;
+    EffectValues<float> fineValues, phaseValues, detuneValues, gainValues, panValues;
 
     double frequency = 0.0;
 

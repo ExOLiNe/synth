@@ -1,6 +1,7 @@
 #include "Constants.h"
 
 namespace params {
+    std::string volumeADSRName(ADSR_VOLUME);
     namespace osc {
         Str waveTableTypeName = "waveTableType";
         Param<unsigned int> voices {"voices", 1, 12, 1};
@@ -28,8 +29,13 @@ namespace params {
     namespace adsr {
         Param<float> attack { "attack", 0.1f, 100.f, 0.1f };
         Param<float> decay { "decay", 0.1f, 100.f, 30.0f };
-        Param<float> sustain { "sustain", 0.1f, 100.f, 0.1f };
-        Param<float> release { "release", 0.1f, 100.f, 10.0f };
+        Param<float> sustain { "sustain", 1.f, 20.f, 1.f };
+        Param<float> release { "release", 1.f, 100.f, 10.0f };
+
+        float attackFactor { 0.03f };
+        float decayFactor { 0.03f };
+        float sustainFactor { 1.0f };
+        float releaseFactor { 0.01f };
     }
 
     namespace lfo {

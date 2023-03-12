@@ -49,15 +49,15 @@ namespace ui {
 
         auto messageManager = juce::MessageManager::getInstance();
         if (button == &volumeAdsrButton) {
-            messageManager->deliverBroadcastMessage(VOLUME_ADSR);
+            messageManager->deliverBroadcastMessage(VOLUME_ADSR_TOPIC);
         } else if (button == &adsr1Button) {
-            messageManager->deliverBroadcastMessage(ADSR1);
+            messageManager->deliverBroadcastMessage(ADSR1_TOPIC);
         }  else if (button == &adsr2Button) {
-            messageManager->deliverBroadcastMessage(ADSR2);
+            messageManager->deliverBroadcastMessage(ADSR2_TOPIC);
         } else if (button == &lfo1Button) {
-            messageManager->deliverBroadcastMessage(LFO1);
+            messageManager->deliverBroadcastMessage(LFO1_TOPIC);
         } else if (button == &lfo2Button) {
-            messageManager->deliverBroadcastMessage(LFO2);
+            messageManager->deliverBroadcastMessage(LFO2_TOPIC);
         }
         button->setToggleState(true, juce::NotificationType::dontSendNotification);
     }

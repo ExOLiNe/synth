@@ -7,7 +7,7 @@
 
 namespace ui {
     Body::Body(juce::AudioProcessorValueTreeState& treeState) :
-    volumeAdsr(treeState, ADSR_VOLUME),
+    volumeAdsr(treeState, params::volumeADSRName),
     adsr1(treeState, ADSR_1),
     adsr2(treeState, ADSR_2),
     lfo1(treeState, LFO_1),
@@ -37,31 +37,31 @@ namespace ui {
     }
 
     void Body::actionListenerCallback (const juce::String& message) {
-        if (message == VOLUME_ADSR) {
+        if (message == VOLUME_ADSR_TOPIC) {
             volumeAdsr.setVisible(true);
             adsr1.setVisible(false);
             adsr2.setVisible(false);
             lfo1.setVisible(false);
             lfo2.setVisible(false);
-        } else if (message == ADSR1) {
+        } else if (message == ADSR1_TOPIC) {
             volumeAdsr.setVisible(false);
             adsr1.setVisible(true);
             adsr2.setVisible(false);
             lfo1.setVisible(false);
             lfo2.setVisible(false);
-        } else if (message == ADSR2) {
+        } else if (message == ADSR2_TOPIC) {
             volumeAdsr.setVisible(false);
             adsr1.setVisible(false);
             adsr2.setVisible(true);
             lfo1.setVisible(false);
             lfo2.setVisible(false);
-        } else if (message == LFO1) {
+        } else if (message == LFO1_TOPIC) {
             volumeAdsr.setVisible(false);
             adsr1.setVisible(false);
             adsr2.setVisible(false);
             lfo1.setVisible(true);
             lfo2.setVisible(false);
-        } else if (message == LFO2) {
+        } else if (message == LFO2_TOPIC) {
             volumeAdsr.setVisible(false);
             adsr1.setVisible(false);
             adsr2.setVisible(false);

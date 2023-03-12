@@ -29,6 +29,14 @@ namespace audio {
         ~SawWave() override;
     };
 
+    class TriangleWave : public Wave {
+    public:
+        TriangleWave();
+        TriangleWave(const TriangleWave& other) = delete;
+        float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
+        ~TriangleWave() override;
+    };
+
     using TableVector = std::vector<std::vector<float>>;
 
     struct WaveTable {
@@ -53,7 +61,7 @@ namespace audio {
         }
 
         WaveTablePresentation presentation;
-        polymorphic_readonly_array<Wave, SinWave, SawWave> waveTable;
+        polymorphic_readonly_array<Wave, SinWave, SawWave, TriangleWave> waveTable;
 
     private:
         long long phaseOffset = 0;

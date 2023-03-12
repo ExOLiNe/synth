@@ -63,8 +63,8 @@ private:
     juce::OwnedArray<juce::Synthesiser> oscillators;
     std::vector<juce::String> oscIds { OSC1, OSC2 };
     std::vector<juce::AudioBuffer<float>> oscOutputBuffers;
-    juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
     juce::AudioProcessorValueTreeState treeState;
+    juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 
     long long timeAccum = 0;
     long times = 0;
