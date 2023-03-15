@@ -227,6 +227,14 @@ juce::AudioProcessorValueTreeState& SynthAudioProcessor::getTreeState() {
     return treeState;
 }
 
+const std::vector<juce::String>& SynthAudioProcessor::getParamNamesAbleToModulate() const {
+    return paramNamesAbleToModulate;
+}
+
+const std::vector<juce::String>& SynthAudioProcessor::getModulatorNames() const {
+    return modulatorNames;
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createLayout() {
     using namespace std;
     using Param = juce::RangedAudioParameter;
@@ -258,6 +266,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::voices.minValue,
                         osc::voices.maxValue,
                         osc::voices.defaultValue));
+        paramNamesAbleToModulate.emplace_back(voicesName);
         params.emplace_back(
                 make_unique<Param_f> (
                         detune,
@@ -265,6 +274,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::voices.minValue,
                         osc::voices.maxValue,
                         osc::voices.defaultValue ));
+        paramNamesAbleToModulate.emplace_back(detune);
         params.emplace_back(
                 make_unique<Param_i> (
                         phase,
@@ -273,6 +283,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::phase.maxValue,
                         osc::phase.defaultValue
                 ));
+        paramNamesAbleToModulate.emplace_back(phase);
         params.emplace_back(
                 make_unique<Param_f> (
                         wtPos,
@@ -280,6 +291,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::wtPos.minValue,
                         osc::wtPos.maxValue,
                         osc::wtPos.defaultValue));
+        paramNamesAbleToModulate.emplace_back(wtPos);
         params.emplace_back(
                 make_unique<Param_f> (
                         pan,
@@ -289,6 +301,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::pan.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(level);
         params.emplace_back(
                 make_unique<Param_i> (
                         level,
@@ -298,6 +311,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::level.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(semitone);
         params.emplace_back(
                 make_unique<Param_i> (
                         semitone,
@@ -307,6 +321,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::semitone.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(fine);
         params.emplace_back(
                 make_unique<Param_f> (
                         fine,
@@ -328,6 +343,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
     }
 
     vector<string> fms = { FM_A, FM_B };
+
     for (auto const &fmId : fms) {
         string freq = fmId + fm::freq.name;
         string mix = fmId + fm::mix.name;
@@ -341,6 +357,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         fm::freq.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(freq);
         params.emplace_back(
                 make_unique<Param_i> (
                         mix,
@@ -350,6 +367,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         fm::mix.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(enabled);
         params.emplace_back(
                 make_unique<Param_b> (
                         enabled,
@@ -361,6 +379,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
 
     vector<string> filters = { FILTER_A, FILTER_B };
     for (auto const &filterId : filters) {
+
         string freq = filterId + filter::freq.name;
         string reso = filterId + filter::reso.name;
         string enabled = filterId + filter::enabled.name;
@@ -373,6 +392,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         filter::freq.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(freq);
         params.emplace_back(
                 make_unique<Param_f> (
                         reso,
@@ -382,6 +402,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         filter::reso.defaultValue
                 )
         );
+        paramNamesAbleToModulate.emplace_back(enabled);
         params.emplace_back(
                 make_unique<Param_b> (
                         enabled,
@@ -393,6 +414,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
 
     vector<string> adsrs = { ADSR_1, ADSR_2 };
     for (auto const &adsrId : adsrs) {
+        modulatorNames.push_back(adsrId);
+
         string attack = adsrId + adsr::attack.name;
         string decay = adsrId + adsr::decay.name;
         string sustain = adsrId + adsr::sustain.name;
@@ -484,6 +507,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
 
     vector<string> lfos = { LFO_1, LFO_2 };
     for (auto const& lfoId : lfos) {
+        modulatorNames.push_back(lfoId);
+
         string freq = lfoId + lfo::freq.name;
         string amp = lfoId + lfo::amp.name;
         params.emplace_back(

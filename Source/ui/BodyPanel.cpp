@@ -3,9 +3,16 @@
 #include "../Constants.h"
 
 namespace ui {
-    BodyPanel::BodyPanel(juce::AudioProcessorValueTreeState& treeState) : mainPanel(treeState) {
+    BodyPanel::BodyPanel(juce::AudioProcessorValueTreeState& treeState,
+                         const std::vector<juce::String>& paramNamesAbleToModulate,
+                         const std::vector<juce::String>& modulatorNames) :
+    mainPanel(treeState)/*, matrixPanel(paramNamesAbleToModulate, modulatorNames)*/ {
         addAndMakeVisible(mainPanel);
-        addChildComponent(matrixPanel);
+        auto matrixPanel = new MatrixPanel(paramNamesAbleToModulate, modulatorNames);
+        matrixPanel->setBounds(getLocalBounds());
+        matrixViewPort.setViewedComponent(matrixPanel);
+        addChildComponent(matrixViewPort);
+        //addChildComponent(matrixPanel);
         addChildComponent(masterPanel);
         juce::MessageManager::getInstance()->registerBroadcastListener(this);
     }
@@ -20,7 +27,8 @@ namespace ui {
 
     void BodyPanel::resized() {
         mainPanel.setBounds(getLocalBounds());
-        matrixPanel.setBounds(getLocalBounds());
+        matrixViewPort.setBounds(getLocalBounds());
+        matrixViewPort.getViewedComponent()->setBounds(getLocalBounds().withHeight(getLocalBounds().getHeight() * 2));
         masterPanel.setBounds(getLocalBounds());
     }
 
@@ -28,16 +36,17 @@ namespace ui {
     {
         if (message == MAIN_PANEL) {
             mainPanel.setVisible(true);
-            matrixPanel.setVisible(false);
+            //matrixPanel.setVisible(false);
+            matrixViewPort.setVisible(false);
             masterPanel.setVisible(false);
         } else if (message == MATRIX_PANEL) {
             mainPanel.setVisible(false);
-            matrixPanel.setVisible(true);
+            matrixViewPort.setVisible(true);
             masterPanel.setVisible(false);
         } else if (message == MASTER_PANEL) {
             mainPanel.setVisible(false);
-            matrixPanel.setVisible(true);
-            masterPanel.setVisible(false);
+            matrixViewPort.setVisible(false);
+            masterPanel.setVisible(true);
         }
     }
 }

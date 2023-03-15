@@ -58,11 +58,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState& getTreeState();
+    const std::vector<juce::String>& getParamNamesAbleToModulate() const;
+    const std::vector<juce::String>& getModulatorNames() const;
 private:
     audio::SinWave wave;
     juce::OwnedArray<juce::Synthesiser> oscillators;
     std::vector<juce::String> oscIds { OSC1, OSC2 };
     std::vector<juce::AudioBuffer<float>> oscOutputBuffers;
+    std::vector<juce::String> paramNamesAbleToModulate;
+    std::vector<juce::String> modulatorNames;
     juce::AudioProcessorValueTreeState treeState;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 
