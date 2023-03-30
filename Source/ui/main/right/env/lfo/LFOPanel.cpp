@@ -39,7 +39,7 @@ namespace ui {
 
     void LFOPanel::bindLayoutsToTree(juce::AudioProcessorValueTreeState &apvts, const juce::String& lfoId) {
         frequencyValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
-                apvts, lfoId + params::lfo::freq.name, frequency
+                apvts, lfoId, frequency
                 );
         intensityValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
                 apvts, lfoId + params::lfo::amp.name, intensity

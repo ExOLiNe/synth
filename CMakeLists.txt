@@ -48,7 +48,6 @@ target_sources(${PROJECT_NAME}
         PRIVATE
         Source/Constants.cpp
         Source/other/Grid.cpp
-        Source/audio/wave/WaveTables.cpp
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
         Source/ui/TopPanel.cpp
@@ -75,6 +74,8 @@ target_sources(${PROJECT_NAME}
 
         Source/audio/osc/SynthVoice.cpp
         Source/audio/osc/SynthSound.cpp
+        Source/audio/wave/WaveTables.cpp
+        Source/audio/lfo/LFO.cpp
         )
 
 target_compile_definitions(${PROJECT_NAME}
@@ -83,6 +84,12 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
         JUCE_VST3_CAN_REPLACE_VST2=0)
+
+#if(MSVC)
+#    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+#else()
+#    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+#endif()
 
 
 target_link_libraries(${PROJECT_NAME}

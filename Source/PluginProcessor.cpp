@@ -25,7 +25,8 @@ SynthAudioProcessor::SynthAudioProcessor()
 #endif
                                   .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-), treeState(*this, nullptr, "Params", createLayout())
+), treeState(*this, nullptr, "Params", createLayout()),
+lfo(treeState.getRawParameterValue(LFO_1), lfoFreq)
 #endif
 {
     oscOutputBuffers.resize(oscIds.size());
@@ -182,6 +183,9 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             }
         }
     }
+
+    lfo.shiftPhase(buffer.getNumSamples(), getSampleRate());
+
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     timeAccum += duration;
@@ -340,6 +344,80 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         0
                         )
                 );
+
+        // LFO Modulators
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_1 + params::osc::level.name,
+                        oscId + LFO_1 + params::osc::level.name,
+                        0.f,
+                        1.f,
+                        0.f
+                        )
+                );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_2 + params::osc::level.name,
+                        oscId + LFO_2 + params::osc::level.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_1 + params::osc::pan.name,
+                        oscId + LFO_1 + params::osc::pan.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_2 + params::osc::pan.name,
+                        oscId + LFO_2 + params::osc::pan.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_1 + params::osc::phase.name,
+                        oscId + LFO_1 + params::osc::phase.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_2 + params::osc::phase.name,
+                        oscId + LFO_2 + params::osc::phase.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_1 + params::osc::fine.name,
+                        oscId + LFO_1 + params::osc::fine.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + LFO_2 + params::osc::fine.name,
+                        oscId + LFO_2 + params::osc::fine.name,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
     }
 
     vector<string> fms = { FM_A, FM_B };
@@ -509,7 +587,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
     for (auto const& lfoId : lfos) {
         modulatorNames.push_back(lfoId);
 
-        string freq = lfoId + lfo::freq.name;
+        string freq = lfoId;
         string amp = lfoId + lfo::amp.name;
         params.emplace_back(
                 make_unique<Param_f> (
@@ -531,7 +609,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
     }
 
-
+    //TODO remove temporary
+    params.emplace_back(
+            make_unique<Param_f>(
+            "lfo",
+            "lfo",
+            -1.f,
+            1.f,
+            0.f
+            ));
 
     return {params.begin(), params.end()};
 }

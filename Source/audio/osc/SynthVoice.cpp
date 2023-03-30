@@ -4,7 +4,6 @@
 
 #include "SynthVoice.h"
 #include "SynthSound.h"
-#include "../../Constants.h"
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <cmath>
 
@@ -12,21 +11,32 @@ namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
 
     SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id):
-    id(id), waveTables(WaveTables::getInstance()->copyWaveTables()),
-    waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
-    waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
-    gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
-    panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)),
-    voicesAtomic(apvts.getRawParameterValue(id + params::osc::voices.name)),
-    detuneAtomic(apvts.getRawParameterValue(id + params::osc::detune.name)),
-    phaseAtomic(apvts.getRawParameterValue(id + params::osc::phase.name)),
-    semitoneAtomic(apvts.getRawParameterValue(id + params::osc::semitone.name)),
-    fineAtomic(apvts.getRawParameterValue(id + params::osc::fine.name)),
-    currentWaveTableIndex((int)waveTableIndex->load()),
-    volumeAttack(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::attack.name)),
-    volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
-    volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
-    volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)) {
+            id(id), waveTables(WaveTables::getInstance()->copyWaveTables()),
+            waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
+            waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
+            gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
+            panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)),
+            voicesAtomic(apvts.getRawParameterValue(id + params::osc::voices.name)),
+            detuneAtomic(apvts.getRawParameterValue(id + params::osc::detune.name)),
+            phaseAtomic(apvts.getRawParameterValue(id + params::osc::phase.name)),
+            semitoneAtomic(apvts.getRawParameterValue(id + params::osc::semitone.name)),
+            fineAtomic(apvts.getRawParameterValue(id + params::osc::fine.name)),
+            currentWaveTableIndex((int)waveTableIndex->load()),
+            volumeAttack(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::attack.name)),
+            volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
+            volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
+            volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)),
+            lfo1(apvts.getRawParameterValue(lfo1Id)),
+            lfo2(apvts.getRawParameterValue(lfo2Id)),
+            lfo1GainAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::level.name)),
+            lfo2GainAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::level.name)),
+            lfo1PanAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::pan.name)),
+            lfo2PanAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::pan.name)),
+            lfo1PhaseAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::phase.name)),
+            lfo2PhaseAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::phase.name)),
+            lfo1FineAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::fine.name)),
+            lfo2FineAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::fine.name))
+                       {
 
     }
 
@@ -72,11 +82,16 @@ namespace audio {
             currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
         }
 
-        fineValues.updatePrevious();
-        phaseValues.updatePrevious();
-        detuneValues.updatePrevious();
-        gainValues.updatePrevious();
-        panValues.updatePrevious();
+        updatePreviousValues(
+            fineValues, phaseValues, detuneValues, gainValues, panValues,
+
+            lfo1GainAmpValues,  lfo2GainAmpValues,
+            lfo1PanAmpValues,   lfo2PanAmpValues,
+            lfo1PhaseAmpValues, lfo2PhaseAmpValues,
+            lfo1FineAmpValues,  lfo2FineAmpValues,
+            lfo1Values, lfo2Values
+        );
+
         updateADSR();
         updateSemitone();
         updateWaveTableIndex();
@@ -101,8 +116,17 @@ namespace audio {
         panValues.current = panAtomic->load();
         const int voices = (int)voicesAtomic->load();
 
+        lfo1Values.current = lfo1->load();
+        lfo2Values.current = lfo2->load();
+
+        LOAD_CURRENT_LFO_VALUE(Gain);
+        LOAD_CURRENT_LFO_VALUE(Pan);
+        LOAD_CURRENT_LFO_VALUE(Phase);
+        LOAD_CURRENT_LFO_VALUE(Fine);
+
         for (int i = 0; i < numSamples; ++i) {
-            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i);
+            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i) +
+                    frequency * /*lfo1FineAmpValues.current */ 0.01f * getSmoothValue(lfo1Values, numSamples, i);
             currentWaveTable.shiftPhase();
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i);
             const float detune = getSmoothValue(detuneValues, numSamples, i);
@@ -123,6 +147,7 @@ namespace audio {
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
+            //output += getSmoothValue(lfoValues, numSamples, i);
             const float pan = getSmoothValue(panValues, numSamples, i);
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);

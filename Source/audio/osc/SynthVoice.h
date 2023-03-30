@@ -4,6 +4,17 @@
 #include "../wave/WaveTables.h"
 #include "../../other/polymorphic_readonly_array.h"
 #include <juce_dsp/juce_dsp.h>
+#include "../../Constants.h"
+#include <cstdarg>
+
+#define LOAD_CURRENT_LFO_VALUE(param_name) \
+    lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
+    lfo2##param_name##AmpValues.current = lfo2##param_name##Amp->load()
+
+/*#define LOAD_CURRENT_VALUES(...) \
+    int params[] = { __VA_ARGS__ }; \
+    int numfos = sizeof(params); \
+    static_assert(false, numfos);*/
 
 namespace audio {
     template<typename T>
@@ -46,6 +57,10 @@ public:
                          int numSamples) override;
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
 private:
+    template<typename ...T>
+    void updatePreviousValues(EffectValues<T>&... effectValues) {
+        (effectValues.updatePrevious(), ...);
+    }
     float getPanGain(const Channel& channel, float pan) const;
     float getFloatWaveTablePos(const WaveTable& waveTable) const;
     void updateSemitone();
@@ -54,14 +69,21 @@ private:
     void updateADSR();
 
     const juce::String id;
+    const juce::String lfo1Id = LFO_1;
+    const juce::String lfo2Id = LFO_2;
 
     juce::ADSR volumeADSR;
     juce::ADSR::Parameters volumeADSRParams;
 
     const std::atomic<float> *waveTableIndex, *waveTablePos, *gainAtomic, *panAtomic,
-        *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic;
+        *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic,
+        *volumeAttack, *volumeDecay, *volumeSustain, *volumeRelease;
 
-    std::atomic<float> *volumeAttack, *volumeDecay, *volumeSustain, *volumeRelease;
+    //TODO add common amp lfo value
+    const std::atomic<float> *lfo1, *lfo2;
+
+    const std::atomic<float> *lfo1GainAmp, *lfo1PanAmp, *lfo1PhaseAmp, *lfo1FineAmp;
+    const std::atomic<float> *lfo2GainAmp, *lfo2PanAmp, *lfo2PhaseAmp, *lfo2FineAmp;
 
     int currentWaveTableIndex = -1;
     std::vector<WaveTable> waveTables;
@@ -70,6 +92,13 @@ private:
     int previousSemitoneOffset = 0;
 
     EffectValues<float> fineValues, phaseValues, detuneValues, gainValues, panValues;
+
+    EffectValues<float> lfo1Values, lfo2Values;
+
+    EffectValues<float> lfo1GainAmpValues, lfo2GainAmpValues;
+    EffectValues<float> lfo1PanAmpValues, lfo2PanAmpValues;
+    EffectValues<float> lfo1PhaseAmpValues, lfo2PhaseAmpValues;
+    EffectValues<float> lfo1FineAmpValues, lfo2FineAmpValues;
 
     double frequency = 0.0;
 

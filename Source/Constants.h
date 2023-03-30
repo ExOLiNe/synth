@@ -28,8 +28,8 @@
 #define ADSR_VOLUME "volumeADSR"
 #define ADSR_1 "ADSR1"
 #define ADSR_2 "ADSR2"
-#define LFO_1 "LFO1_TOPIC"
-#define LFO_2 "LFO2_TOPIC"
+#define LFO_1 "LFO1"
+#define LFO_2 "LFO2"
 
 using Str = const char*;
 
