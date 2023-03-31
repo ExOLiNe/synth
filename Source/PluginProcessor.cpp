@@ -35,8 +35,8 @@ lfo(treeState.getRawParameterValue(LFO_1), lfoFreq)
         oscillators.add(new juce::Synthesiser());
         oscillators[oscIndex]->clearVoices();
 
-        for (int j = 0; j < TOTAL_SYNTH_VOICES; ++j) {
-            oscillators[oscIndex]->addVoice(new audio::SynthVoice(treeState, oscIds[oscIndex]));
+        for (size_t j = 0; j < TOTAL_SYNTH_VOICES; ++j) {
+            oscillators[oscIndex]->addVoice(new audio::SynthVoice(treeState, oscIds[oscIndex], j));
         }
 
         oscillators[oscIndex]->clearSounds();

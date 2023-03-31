@@ -6,6 +6,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "../../Constants.h"
 #include <cstdarg>
+#include "../../other/HighFrequencyLogger.h"
 
 #define LOAD_CURRENT_LFO_VALUE(param_name) \
     lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
@@ -29,6 +30,7 @@ namespace audio {
     template<typename T>
     T getSmoothValue(const EffectValues<T>& values, int bufSize, int step) {
         jassert(bufSize > 0);
+        // if value is the same(floating point errors)
         if (std::abs(values.previous - values.current) <= 0.001f) {
             return values.current;
         } else {
@@ -43,7 +45,7 @@ namespace audio {
 
 class SynthVoice : public juce::SynthesiserVoice {
 public:
-    SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id);
+    SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id, const size_t voiceId);
     bool canPlaySound(juce::SynthesiserSound*) override;
     void startNote(int midiNoteNumber,
                    float velocity,
@@ -69,6 +71,7 @@ private:
     void updateADSR();
 
     const juce::String id;
+    const size_t voiceId;
     const juce::String lfo1Id = LFO_1;
     const juce::String lfo2Id = LFO_2;
 
@@ -103,6 +106,7 @@ private:
     double frequency = 0.0;
 
     juce::AudioBuffer<float> currentVoiceBuffer;
+    HighFrequencyLogger logger;
 };
 
 }

@@ -10,8 +10,8 @@
 namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
 
-    SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id):
-            id(id), waveTables(WaveTables::getInstance()->copyWaveTables()),
+    SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id, const size_t voiceId):
+            id(id), voiceId(voiceId), waveTables(WaveTables::getInstance()->copyWaveTables()),
             waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
             waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
             gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
@@ -117,6 +117,7 @@ namespace audio {
         const int voices = (int)voicesAtomic->load();
 
         lfo1Values.current = lfo1->load();
+        //DBG(juce::String(lfo1Values.previous) + " " + std::to_string(lfo1Values.current));
         lfo2Values.current = lfo2->load();
 
         LOAD_CURRENT_LFO_VALUE(Gain);
@@ -124,15 +125,22 @@ namespace audio {
         LOAD_CURRENT_LFO_VALUE(Phase);
         LOAD_CURRENT_LFO_VALUE(Fine);
 
+        float maxFreq = 0.f;
+
         for (int i = 0; i < numSamples; ++i) {
-            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i) +
-                    frequency * /*lfo1FineAmpValues.current */ 0.01f * getSmoothValue(lfo1Values, numSamples, i);
+            //auto freqLfoOffset = frequency * /*lfo1FineAmpValues.current */ 0.1f * getSmoothValue(lfo1Values, numSamples, i);
+            //freqLfoOffset = 0.f;
+            const double finalFrequency = frequency; /** getSmoothValue(fineValues, numSamples, i) + freqLfoOffset*/;
+
+            if (finalFrequency > maxFreq) {
+                maxFreq = finalFrequency;
+            }
             currentWaveTable.shiftPhase();
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i);
             const float detune = getSmoothValue(detuneValues, numSamples, i);
             float output = 0.0;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
-                const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * (voices / 2 - voiceIndex));
+                const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * ((float)voices / 2 - voiceIndex));
 
                 // Morphing between the nearest waves
                 const float upperOutput = currentWaveTable.generateSample(
@@ -147,11 +155,18 @@ namespace audio {
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
-            //output += getSmoothValue(lfoValues, numSamples, i);
-            const float pan = getSmoothValue(panValues, numSamples, i);
+            /*output *= getSmoothValue(lfo1Values, numSamples, i);*/
+            if (id == "osc1" && voiceId == 0) {
+                logger.log(lfo1Values.current);
+            }
+            const float pan = getSmoothValue(panValues, numSamples, i)/* + getSmoothValue(lfo1Values, numSamples, i)*/;
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
+
+        /*if (id == "osc1" && voiceId == 0) {
+            DBG(id + " - " + std::to_string(voiceId) + " - " + std::to_string(maxFreq));
+        }*/
 
         volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 

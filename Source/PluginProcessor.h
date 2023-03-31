@@ -62,7 +62,7 @@ public:
     const std::vector<juce::String>& getParamNamesAbleToModulate() const;
     const std::vector<juce::String>& getModulatorNames() const;
 private:
-    std::atomic<float> *lfoFreq = new std::atomic<float>(2.f);
+    std::atomic<float> *lfoFreq = new std::atomic<float>(3.f);
 
     audio::SinWave wave;
     juce::OwnedArray<juce::Synthesiser> oscillators;
