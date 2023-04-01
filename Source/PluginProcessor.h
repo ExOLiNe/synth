@@ -62,7 +62,7 @@ public:
     const std::vector<juce::String>& getParamNamesAbleToModulate() const;
     const std::vector<juce::String>& getModulatorNames() const;
 private:
-    std::atomic<float> *lfoFreq = new std::atomic<float>(3.f);
+    //std::atomic<float> *lfoFreq = new std::atomic<float>(3.f);
 
     audio::SinWave wave;
     juce::OwnedArray<juce::Synthesiser> oscillators;
@@ -73,7 +73,7 @@ private:
     juce::AudioProcessorValueTreeState treeState;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 
-    audio::LFO lfo;
+    audio::LFO lfo1, lfo2;
 
     long long timeAccum = 0;
     long times = 0;

@@ -118,7 +118,6 @@ namespace audio {
         const int voices = (int)voicesAtomic->load();
 
         lfo1Values.current = lfo1->load();
-        //DBG(juce::String(lfo1Values.previous) + " " + std::to_string(lfo1Values.current));
         lfo2Values.current = lfo2->load();
 
         LOAD_CURRENT_LFO_VALUE(Gain);
@@ -141,7 +140,7 @@ namespace audio {
             const float detune = getSmoothValue(detuneValues, numSamples, i);
             float output = 0.0;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
-                const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * ((float)voices / 2 - voiceIndex));
+                const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * ((float)voices / 2 - (float)voiceIndex));
 
                 // Morphing between the nearest waves
                 const float upperOutput = currentWaveTable.generateSample(
@@ -152,22 +151,18 @@ namespace audio {
                 );
                 output += upperOutput * upperWaveGainFactor + lowerOutput * lowerWaveGainFactor;
             }
-            output /= voices;
+            output /= (float)voices;
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
-            /*output *= getSmoothValue(lfo1Values, numSamples, i);*/
+            output *= getSmoothValue(lfo1Values, numSamples, i);
             if (id == "osc1" && voiceId == 0) {
                 logger.log(lfo1Values.current);
             }
-            const float pan = getSmoothValue(panValues, numSamples, i)/* + getSmoothValue(lfo1Values, numSamples, i)*/;
+            const float pan = getSmoothValue(panValues, numSamples, i) + getSmoothValue(lfo2Values, numSamples, i);
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
-
-        /*if (id == "osc1" && voiceId == 0) {
-            DBG(id + " - " + std::to_string(voiceId) + " - " + std::to_string(maxFreq));
-        }*/
 
         volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 

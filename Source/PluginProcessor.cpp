@@ -26,7 +26,8 @@ SynthAudioProcessor::SynthAudioProcessor()
                                   .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 ), treeState(*this, nullptr, "Params", createLayout()),
-lfo(treeState.getRawParameterValue(LFO_1), lfoFreq)
+lfo1(treeState.getRawParameterValue(LFO_1), treeState.getRawParameterValue(juce::String(LFO_1) + params::lfo::freq.name)),
+lfo2(treeState.getRawParameterValue(LFO_2), treeState.getRawParameterValue(juce::String(LFO_2) + params::lfo::freq.name))
 #endif
 {
     oscOutputBuffers.resize(oscIds.size());
@@ -184,7 +185,8 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         }
     }
 
-    lfo.shiftPhase(buffer.getNumSamples(), getSampleRate());
+    lfo1.shiftPhase(buffer.getNumSamples(), getSampleRate());
+    lfo2.shiftPhase(buffer.getNumSamples(), getSampleRate());
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
@@ -587,7 +589,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
     for (auto const& lfoId : lfos) {
         modulatorNames.push_back(lfoId);
 
-        string freq = lfoId;
+        string freq = lfoId + lfo::freq.name;
         string amp = lfoId + lfo::amp.name;
         params.emplace_back(
                 make_unique<Param_f> (
@@ -607,6 +609,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         lfo::amp.defaultValue
                 )
         );
+
+        // lfo value calculated from lfo object
+        params.emplace_back(
+                make_unique<Param_f> (
+                        lfoId,
+                        lfoId,
+                        -1.f,
+                        1.f,
+                        0.f
+                        )
+                );
     }
 
     //TODO remove temporary
