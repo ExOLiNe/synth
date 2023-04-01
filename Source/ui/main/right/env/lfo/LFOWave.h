@@ -7,7 +7,7 @@ namespace ui {
 class LFOWave : public juce::Component, public juce::AudioProcessorValueTreeState::Listener {
     public:
         LFOWave(juce::AudioProcessorValueTreeState& treeState, const juce::String lfoId);
-        ~LFOWave();
+        ~LFOWave() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

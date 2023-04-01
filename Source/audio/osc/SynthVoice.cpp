@@ -11,9 +11,9 @@ namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
 
     SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id, const size_t voiceId):
-            id(id), voiceId(voiceId), waveTables(WaveTables::getInstance()->copyWaveTables()),
-            waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
+            id(id), voiceId(voiceId),
             waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
+            waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
             gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
             panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)),
             voicesAtomic(apvts.getRawParameterValue(id + params::osc::voices.name)),
@@ -21,7 +21,6 @@ namespace audio {
             phaseAtomic(apvts.getRawParameterValue(id + params::osc::phase.name)),
             semitoneAtomic(apvts.getRawParameterValue(id + params::osc::semitone.name)),
             fineAtomic(apvts.getRawParameterValue(id + params::osc::fine.name)),
-            currentWaveTableIndex((int)waveTableIndex->load()),
             volumeAttack(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::attack.name)),
             volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
             volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
@@ -29,13 +28,15 @@ namespace audio {
             lfo1(apvts.getRawParameterValue(lfo1Id)),
             lfo2(apvts.getRawParameterValue(lfo2Id)),
             lfo1GainAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::level.name)),
-            lfo2GainAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::level.name)),
             lfo1PanAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::pan.name)),
-            lfo2PanAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::pan.name)),
             lfo1PhaseAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::phase.name)),
-            lfo2PhaseAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::phase.name)),
             lfo1FineAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::fine.name)),
-            lfo2FineAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::fine.name))
+            lfo2GainAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::level.name)),
+            lfo2PanAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::pan.name)),
+            lfo2PhaseAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::phase.name)),
+            lfo2FineAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::fine.name)),
+            currentWaveTableIndex((int)waveTableIndex->load()),
+            waveTables(WaveTables::getInstance()->copyWaveTables())
                        {
 
     }
@@ -44,8 +45,8 @@ namespace audio {
         return dynamic_cast<SynthSound*>(sound) != nullptr;
     }
 
-    void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound,
-                               int currentPitchWheelPosition) {
+    void SynthVoice::startNote(int midiNoteNumber, float, juce::SynthesiserSound *,
+                               int) {
         midiNote = midiNoteNumber;
         frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)semitoneAtomic->load());
         for (auto & table : waveTables) {
@@ -54,19 +55,19 @@ namespace audio {
         volumeADSR.noteOn();
     }
 
-    void SynthVoice::stopNote(float velocity, bool allowTailOff) {
+    void SynthVoice::stopNote(float, bool) {
         volumeADSR.noteOff();
     }
 
-    void SynthVoice::pitchWheelMoved(int newPitchWheelValue) {
+    void SynthVoice::pitchWheelMoved(int) {
 
     }
 
-    void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue) {
+    void SynthVoice::controllerMoved(int, int) {
 
     }
 
-    void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels) {
+    void SynthVoice::prepareToPlay(double sampleRate, int, int) {
         volumeADSR.setSampleRate(sampleRate);
         volumeADSR.setParameters(volumeADSRParams);
         volumeADSR.reset();

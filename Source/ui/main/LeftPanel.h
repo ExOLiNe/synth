@@ -8,7 +8,7 @@ namespace ui {
     class LeftPanel : public juce::Component {
     public:
         LeftPanel(juce::AudioProcessorValueTreeState& treeState);
-        ~LeftPanel();
+        ~LeftPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

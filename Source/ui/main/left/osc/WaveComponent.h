@@ -8,7 +8,7 @@
 class WaveComponent : public juce::Component, public juce::ComboBox::Listener {
 public:
     WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId);
-    ~WaveComponent();
+    ~WaveComponent() noexcept;
 
     void paint(juce::Graphics&) override;
     void resized() override;

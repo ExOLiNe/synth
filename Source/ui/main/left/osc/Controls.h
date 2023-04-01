@@ -6,7 +6,7 @@
 class Controls : public juce::Component {
 public:
     Controls(juce::AudioProcessorValueTreeState& treeState, const juce::String& oscId);
-    ~Controls();
+    ~Controls() noexcept;
 
     void paint(juce::Graphics&) override;
     void resized() override;

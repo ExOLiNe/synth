@@ -31,7 +31,7 @@ lfo(treeState.getRawParameterValue(LFO_1), lfoFreq)
 {
     oscOutputBuffers.resize(oscIds.size());
 
-    for (int oscIndex = 0; oscIndex < oscIds.size(); ++oscIndex) {
+    for (size_t oscIndex = 0; oscIndex < oscIds.size(); ++oscIndex) {
         oscillators.add(new juce::Synthesiser());
         oscillators[oscIndex]->clearVoices();
 
@@ -98,23 +98,23 @@ int SynthAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void SynthAudioProcessor::setCurrentProgram (int index)
+void SynthAudioProcessor::setCurrentProgram (int)
 {
 }
 
-const juce::String SynthAudioProcessor::getProgramName (int index)
+const juce::String SynthAudioProcessor::getProgramName (int)
 {
     return {};
 }
 
-void SynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void SynthAudioProcessor::changeProgramName (int, const juce::String&)
 {
 }
 
 //==============================================================================
 void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    jassert(oscillators.size() == oscOutputBuffers.size());
+    jassert((size_t)oscillators.size() == oscOutputBuffers.size());
 
     for (int i = 0; i < oscillators.size(); ++i) {
         oscOutputBuffers[i].setSize(getTotalNumOutputChannels(), samplesPerBlock);

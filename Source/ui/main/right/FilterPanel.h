@@ -7,7 +7,7 @@ namespace ui {
     class FilterControls : public juce::Component {
     public:
         FilterControls(juce::AudioProcessorValueTreeState& treeState, const juce::String& filterId);
-        ~FilterControls();
+        ~FilterControls() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;
@@ -26,7 +26,7 @@ namespace ui {
     class FilterControlsHolder : public juce::Component, public juce::ComboBox::Listener {
     public:
         FilterControlsHolder(juce::AudioProcessorValueTreeState& treeState);
-        ~FilterControlsHolder();
+        ~FilterControlsHolder() noexcept;
         void paint(juce::Graphics&) override;
         void resized() override;
     private:
@@ -38,7 +38,7 @@ namespace ui {
     class FilterPanel : public juce::Component {
     public:
         FilterPanel(juce::AudioProcessorValueTreeState& treeState);
-        ~FilterPanel();
+        ~FilterPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

@@ -6,7 +6,7 @@
 #include "../../../other/Grid.h"
 
 OscPanel::OscPanel(juce::AudioProcessorValueTreeState& treeState, juce::String oscId) :
-controls(treeState, oscId), waveComponent(treeState, oscId) {
+    waveComponent(treeState, oscId), controls(treeState, oscId) {
     addAndMakeVisible(waveComponent);
     addAndMakeVisible(controls);
 }

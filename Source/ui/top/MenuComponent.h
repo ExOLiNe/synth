@@ -6,7 +6,7 @@ namespace ui {
     class MenuComponent : public juce::Component, public juce::Button::Listener {
     public:
         MenuComponent();
-        ~MenuComponent();
+        ~MenuComponent() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

@@ -5,47 +5,48 @@
 template<typename Parent, typename ...Children>
 class polymorphic_readonly_array {
 public:
-    /*explicit polymorphic_readonly_array(std::array<Parent*, total>&& array) : maxSize(max_size<Children...>::value()), totalElements(total) {
+    /*explicit polymorphic_readonly_array(std::array<Parent*, total>&& array) : align(max_size<Children...>::value()), totalElements(total) {
         //static_assert(is_copy_constructible<Children...>::value());
 
-        rawData = new char[total * maxSize];
+        rawData = new char[total * align];
         swapData<decltype(array), true>(std::move(array));
     }*/
 
     template<typename Container>
     explicit polymorphic_readonly_array(Container&& container)
-        : maxSize(max_size<Children...>::value()), totalElements(container.size()), capacity(maxSize * totalElements) {
+        : align(max_size<Children...>::value()), totalElements(container.size()), capacity(align * totalElements) {
         rawData = new char[capacity];
-        swapData<decltype(container), true>(std::move(container));
+        swapData<decltype(container), true>(std::forward<Container>(container));
     }
 
-    polymorphic_readonly_array(const std::vector<Parent*>& vector)
-        : maxSize(max_size<Children...>::value()), totalElements(vector.size()), capacity(maxSize * totalElements) {
+    /*[[maybe_unused]]
+    explicit polymorphic_readonly_array(const std::vector<Parent*>& vector)
+        : align(max_size<Children...>::value()), totalElements(vector.size()), capacity(align * totalElements) {
         rawData = new char[capacity];
         swapData<decltype(vector), true>(vector);
-    }
+    }*/
 
     polymorphic_readonly_array(const polymorphic_readonly_array& other)
-        : maxSize(other.maxSize), totalElements(other.totalElements) {
-        maxSize = other.maxSize;
+        : align(other.align), totalElements(other.totalElements) {
+        align = other.align;
         totalElements = other.totalElements;
-        capacity = maxSize * totalElements;
+        capacity = align * totalElements;
         rawData = new char[capacity];
         swapData(other.vector);
     }
 
     polymorphic_readonly_array(polymorphic_readonly_array&& other) noexcept
-        : vector(other.vector), maxSize(other.maxSize), totalElements(other.totalElements), rawData(other.rawData) {
+        : align(other.align), totalElements(other.totalElements), capacity(other.capacity), vector(other.vector), rawData(other.rawData) {
     }
 
     //polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) = delete;
     polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) {
         if (this != &other) {
-            if (capacity < other.totalElements * other.maxSize) {
+            if (capacity < other.totalElements * other.align) {
                 delete[] rawData;
                 totalElements = other.totalElements;
-                maxSize = other.maxSize;
-                capacity = other.totalElements * other.maxSize;
+                align = other.align;
+                capacity = other.totalElements * other.align;
                 rawData = new char[capacity];
             }
             swapData(other.vector);
@@ -63,23 +64,24 @@ public:
         return vector[index] ;
     }
 
+    [[nodiscard]]
     size_t size() const {
         return vector.size();
     }
 private:
-    size_t maxSize;
+    size_t align;
     size_t totalElements;
     size_t capacity;
     std::vector<Parent*> vector;
-    void* rawData;
+    char* rawData;
 
     template<typename Container, bool deletePointersData = false>
     void swapData(Container&& container) {
         vector.clear();
         vector.reserve(totalElements);
-        for (int i = 0; i < totalElements; ++i) {
-            std::memcpy((void*)((char*) rawData + maxSize * i), container[i], sizeof(container[i]));
-            Parent* element = (Parent*)((char*) rawData + maxSize * i);
+        for (size_t i = 0; i < totalElements; ++i) {
+            std::memcpy(static_cast<char*>(rawData) + align * i, reinterpret_cast<char*>(container[i]), sizeof(*container[i]));
+            auto* element = reinterpret_cast<Parent*>(static_cast<char*>(rawData) + align * i);
             vector.push_back(element);
             if constexpr (deletePointersData) {
                 delete container[i];

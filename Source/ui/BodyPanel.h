@@ -12,7 +12,7 @@ namespace ui {
         BodyPanel(juce::AudioProcessorValueTreeState&,
                   const std::vector<juce::String>& paramNamesAbleToModulate,
                   const std::vector<juce::String>& modulatorNames);
-        ~BodyPanel();
+        ~BodyPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

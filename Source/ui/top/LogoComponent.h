@@ -6,7 +6,7 @@ namespace ui {
     class LogoComponent : public juce::Component {
     public:
         LogoComponent();
-        ~LogoComponent();
+        ~LogoComponent() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

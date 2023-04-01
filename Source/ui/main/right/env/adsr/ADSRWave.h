@@ -7,7 +7,7 @@ namespace ui {
     class ADSRWave : public juce::Component, public juce::AudioProcessorValueTreeState::Listener {
     public:
         ADSRWave(juce::AudioProcessorValueTreeState& treeState, const juce::String adsrId);
-        ~ADSRWave();
+        ~ADSRWave() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

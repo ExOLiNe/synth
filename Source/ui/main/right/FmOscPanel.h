@@ -26,7 +26,7 @@ class FmOscControls : public juce::Component {
     class FmOscControlsHolder : public juce::Component, public juce::ComboBox::Listener {
     public:
         FmOscControlsHolder(juce::AudioProcessorValueTreeState& treeState);
-        ~FmOscControlsHolder();
+        ~FmOscControlsHolder() noexcept;
         void paint(juce::Graphics&) override;
         void resized() override;
     private:
@@ -38,7 +38,7 @@ class FmOscControls : public juce::Component {
     class FmOscPanel : public juce::Component {
     public:
         FmOscPanel(juce::AudioProcessorValueTreeState& treeState);
-        ~FmOscPanel();
+        ~FmOscPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

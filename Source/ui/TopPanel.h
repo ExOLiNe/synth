@@ -9,7 +9,7 @@ namespace ui {
     class TopPanel : public juce::Component {
     public:
         TopPanel();
-        ~TopPanel();
+        ~TopPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

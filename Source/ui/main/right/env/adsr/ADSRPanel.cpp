@@ -71,7 +71,7 @@ namespace ui {
         );
     }
 
-    void ADSRPanel::paint(juce::Graphics &g) {
+    void ADSRPanel::paint(juce::Graphics &) {
 
     }
 

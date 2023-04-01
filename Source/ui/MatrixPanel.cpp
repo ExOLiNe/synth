@@ -21,7 +21,7 @@ namespace ui {
         intensityLabel.setFont(juce::Font().boldened());
         addAndMakeVisible(intensityLabel);
 
-        for (int i = 0; i < paramNamesAbleToModulate.size(); ++i) {
+        for (size_t i = 0; i < paramNamesAbleToModulate.size(); ++i) {
             auto source = new juce::Label(paramNamesAbleToModulate[i], paramNamesAbleToModulate[i]);
             source->setText(paramNamesAbleToModulate[i], juce::NotificationType::dontSendNotification);
             addAndMakeVisible(source);
@@ -29,7 +29,7 @@ namespace ui {
 
             auto destination = new juce::ComboBox("combo");
             destination->addItem("---------", i * modulatorNames.size() + 1);
-            for (int j = 0; j < modulatorNames.size(); ++j) {
+            for (size_t j = 0; j < modulatorNames.size(); ++j) {
                 destination->addItem(modulatorNames[j], i * modulatorNames.size() + j + 2);
             }
             destination->setSelectedItemIndex(0);
@@ -53,7 +53,7 @@ namespace ui {
         const float maxHeight = 60.f;
         juce::Array<Track> rows;
         rows.resize(paramNamesAbleToModulate.size() + 1);
-        for (int i = 0; i <= paramNamesAbleToModulate.size(); ++i) {
+        for (size_t i = 0; i <= paramNamesAbleToModulate.size(); ++i) {
             rows.add(Track(Fr(1)));
         }
         using namespace juce;
@@ -70,7 +70,7 @@ namespace ui {
         gridItems.add(GridItem(sourceLabel));
         gridItems.add(GridItem(destinationLabel));
         gridItems.add(GridItem(intensityLabel));
-        for (int i = 1; i < paramNamesAbleToModulate.size(); ++i) {
+        for (size_t i = 1; i < paramNamesAbleToModulate.size(); ++i) {
             gridItems.add(GridItem(sourceLabels[i]).withHeight(maxHeight).withWidth(100.f));
             gridItems.add(GridItem(destinations[i]).withHeight(30.f).withWidth(100.f).withAlignSelf(juce::GridItem::AlignSelf::center));
             gridItems.add(GridItem(intensityKnobs[i]).withHeight(maxHeight));

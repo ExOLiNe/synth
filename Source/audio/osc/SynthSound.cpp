@@ -5,11 +5,11 @@
 #include "SynthSound.h"
 
 namespace audio {
-    bool SynthSound::appliesToNote(int midiNoteNumber)
+    bool SynthSound::appliesToNote(int)
     {
         return true;
     }
-    bool SynthSound::appliesToChannel(int midiChannel)
+    bool SynthSound::appliesToChannel(int)
     {
         return true;
     }

@@ -10,7 +10,7 @@ namespace ui {
     class RightPanel : public juce::Component {
     public:
         RightPanel(juce::AudioProcessorValueTreeState& treeState);
-        ~RightPanel();
+        ~RightPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

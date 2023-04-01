@@ -8,7 +8,7 @@ namespace ui {
     class ADSRPanel : public juce::Component {
     public:
         ADSRPanel(juce::AudioProcessorValueTreeState& treeState, const juce::String adsrId);
-        ~ADSRPanel();
+        ~ADSRPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

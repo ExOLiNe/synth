@@ -6,7 +6,7 @@ namespace ui {
     class PresetComponent : public juce::Component {
     public:
         PresetComponent();
-        ~PresetComponent();
+        ~PresetComponent() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

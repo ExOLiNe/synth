@@ -9,7 +9,7 @@ namespace ui {
     class MainPanel : public juce::Component {
     public:
         MainPanel(juce::AudioProcessorValueTreeState&);
-        ~MainPanel();
+        ~MainPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

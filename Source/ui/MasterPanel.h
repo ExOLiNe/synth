@@ -6,7 +6,7 @@ namespace ui {
     class MasterPanel : public juce::Component {
     public:
         MasterPanel();
-        ~MasterPanel();
+        ~MasterPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

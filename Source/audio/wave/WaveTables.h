@@ -9,7 +9,7 @@ namespace audio {
     class Wave {
     public:
         virtual float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) = 0;
-        virtual ~Wave();
+        virtual ~Wave() noexcept;
     };
 
 
@@ -18,7 +18,7 @@ namespace audio {
         SinWave();
         SinWave(const SinWave& other) = delete;
         float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
-        ~SinWave() override;
+        ~SinWave() noexcept override;
     };
 
     class SawWave : public Wave {
@@ -26,7 +26,7 @@ namespace audio {
         SawWave();
         SawWave(const SawWave& other) = delete;
         float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
-        ~SawWave() override;
+        ~SawWave() noexcept override;
     };
 
     class TriangleWave : public Wave {
@@ -34,7 +34,7 @@ namespace audio {
         TriangleWave();
         TriangleWave(const TriangleWave& other) = delete;
         float generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage = 0.f) override;
-        ~TriangleWave() override;
+        ~TriangleWave() noexcept override;
     };
 
     using TableVector = std::vector<std::vector<float>>;

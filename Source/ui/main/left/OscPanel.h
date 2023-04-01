@@ -8,7 +8,7 @@
 class OscPanel : public juce::Component {
 public:
     OscPanel(juce::AudioProcessorValueTreeState& treeState, juce::String oscId);
-    ~OscPanel();
+    ~OscPanel() noexcept;
 
     void paint(juce::Graphics&) override;
     void resized() override;

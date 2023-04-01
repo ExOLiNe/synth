@@ -85,11 +85,13 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
-#if(MSVC)
-#    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
-#else()
-#    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-#endif()
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            -Wall -Wextra -Wpedantic -Werror
+            )
+endif()
 
 
 target_link_libraries(${PROJECT_NAME}

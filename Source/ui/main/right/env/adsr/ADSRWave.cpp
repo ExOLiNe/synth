@@ -23,7 +23,7 @@ namespace ui {
         releaseValue = getNormalisedValue(releaseSlider);
     }*/
 
-    void ADSRWave::parameterChanged (const juce::String& parameterID, float newValue) {
+    void ADSRWave::parameterChanged (const juce::String&, float) {
         repaint();
     }
 
@@ -31,7 +31,7 @@ namespace ui {
         const int fr = 100;
         auto attackValue = treeState.getRawParameterValue(adsrId + params::adsr::attack.name)->load() / fr;
         auto decayValue = treeState.getRawParameterValue(adsrId + params::adsr::decay.name)->load() / fr;
-        auto sustainValue = treeState.getRawParameterValue(adsrId + params::adsr::sustain.name)->load() / fr;
+        //auto sustainValue = treeState.getRawParameterValue(adsrId + params::adsr::sustain.name)->load() / fr;
         auto releaseValue = treeState.getRawParameterValue(adsrId + params::adsr::release.name)->load() / fr;
 
         auto pointColour = juce::Colours::white.withAlpha(0.8f);

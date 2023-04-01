@@ -7,7 +7,7 @@ namespace ui {
     class LFOPanel : public juce::Component {
     public:
         LFOPanel(juce::AudioProcessorValueTreeState& treeState, const juce::String lfoId);
-        ~LFOPanel();
+        ~LFOPanel() noexcept;
 
         void paint(juce::Graphics&) override;
         void resized() override;

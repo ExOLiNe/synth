@@ -6,7 +6,7 @@
 #include "../../../../other/Grid.h"
 
 WaveComponent::WaveComponent(juce::AudioProcessorValueTreeState& treeState, juce::String oscId)
-: waveTables(audio::WaveTables::getInstance()->copyWaveTables()), wave(treeState, oscId) {
+: wave(treeState, oscId), waveTables(audio::WaveTables::getInstance()->copyWaveTables()) {
 
     {
         int index = 0;

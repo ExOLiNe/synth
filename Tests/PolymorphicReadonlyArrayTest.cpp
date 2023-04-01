@@ -3,22 +3,25 @@
 
 struct Base {
     virtual void func() = 0;
+    virtual ~Base() {};
 };
 
 struct A : Base {
     void func() override {
 
     }
+    ~A() override = default;
 };
 
 struct B : Base {
     void func() override {
 
     }
+    ~B() override = default;
 };
 
 void print(polymorphic_readonly_array<Base, A, B> vec, size_t size) {
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         vec[i]->func();
     }
 }
@@ -28,7 +31,7 @@ size_t total = 10000;
 std::vector<Base*> getVector() {
     std::vector<Base*> v;
     v.reserve(total);
-    for (int i = 0; i < total; ++i) {
+    for (size_t i = 0; i < total; ++i) {
         Base* item;
         if (i % 2 == 0) {
             item = new B();
@@ -61,7 +64,7 @@ void testAssignmentOperator() {
 
     polyV2 = polyV1;
 
-    for (int i = 0; i < total; ++i) {
+    for (size_t i = 0; i < total; ++i) {
         polyV1[i]->func();
         polyV2[i]->func();
     }

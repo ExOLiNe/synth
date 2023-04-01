@@ -18,7 +18,7 @@ namespace audio {
 
     SawWave::SawWave() {}
 
-    float SawWave::generate(float frequency, float sampleRate, long long phaseShiftSamples, float phaseOffsetPercentage) {
+    float SawWave::generate(float frequency, float sampleRate, long long phaseShiftSamples, [[maybe_unused]] float phaseOffsetPercentage) {
         //TODO phaseOffsetPercentage
         auto factor = (1.0 / (sampleRate / (frequency))) * phaseShiftSamples;
         factor = (factor - (int)factor - 1.0) * 2.0;

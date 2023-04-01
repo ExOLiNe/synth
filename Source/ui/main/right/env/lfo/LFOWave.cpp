@@ -14,7 +14,7 @@ namespace ui {
 
     }
 
-    void LFOWave::parameterChanged (const juce::String& parameterID, float newValue) {
+    void LFOWave::parameterChanged (const juce::String&, float) {
         repaint();
     }
 
