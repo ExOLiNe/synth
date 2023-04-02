@@ -8,7 +8,7 @@
 #define SLOTS 20
 
 namespace ui {
-    int parseComponentID(const char* prefix, juce::ComboBox* combo)  {
+    int parseComponentID(const char* prefix, const juce::ComboBox* combo)  {
         return atoi(combo->getComponentID().substring(sizeof(prefix) - 1).toRawUTF8());
     }
 
@@ -89,51 +89,62 @@ namespace ui {
     }
 
     void MatrixPanel::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) {
-        DBG(comboBoxThatHasChanged->getSelectedItemIndex());
-        DBG(comboBoxThatHasChanged->getSelectedId());
-        if (comboBoxThatHasChanged->getComponentID().startsWith(SOURCE)) {
-            auto id = parseComponentID(SOURCE, comboBoxThatHasChanged);
+        auto type = getComboBoxType(comboBoxThatHasChanged);
+        if (type != ComboBoxType::other) {
+            auto id = getComponentID(type, comboBoxThatHasChanged);
             auto rowElement = rowElements[id];
-            if (rowElement->destination->getSelectedItemIndex() > 0
-                && comboBoxThatHasChanged->getSelectedItemIndex() > 0) {
-                Attachment attachment(
-                        new juce::AudioProcessorValueTreeState::SliderAttachment(apvts,
-                            rowElement->source->getText() + rowElement->destination->getText(),
-                            *rowElement->intensity)
-                );
-                rowElement->attachment = std::move(attachment);
-            } else if (comboBoxThatHasChanged->getSelectedItemIndex() <= 0) {
-                rowElement->attachment.reset();
-            }
-        } else if (comboBoxThatHasChanged->getComponentID().startsWith(DESTINATION)) {
-            auto id = parseComponentID(DESTINATION, comboBoxThatHasChanged);
-            auto rowElement = rowElements[id];
-            auto parameterID = rowElement->source->getText() + rowElement->destination->getText();
-            if (rowElement->source->getSelectedItemIndex() > 0
-                && comboBoxThatHasChanged->getSelectedItemIndex() > 0) {
-                Attachment attachment(
-                        new juce::AudioProcessorValueTreeState::SliderAttachment(apvts,
-                                                                                 parameterID,
-                                                                                 *rowElement->intensity)
-                );
-                rowElement->attachment = std::move(attachment);
-                rowElement->parameterID = std::move(parameterID);
-            } else if (comboBoxThatHasChanged->getSelectedItemIndex() <= 0) {
-                rowElement->attachment.reset();
-                auto valuePtr = apvts.getRawParameterValue(rowElement->parameterID);
-                if (valuePtr != nullptr) {
-                    valuePtr->store(0.f);
-                }
+            if (type == ComboBoxType::source) {
+                updateAttachment(rowElement->source, rowElement->destination, rowElement);
+            } else {
+                updateAttachment(rowElement->destination, rowElement->source, rowElement);
             }
         }
-        /*
-           // REMOVE PREVIOUS
+    }
 
-           // ADD
-           auto attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
-                apvts, paramNamesAbleToModulate[getSelectedItemId()].parameterID);
-           attachments.add(attachment);
-         */
+    ComboBoxType MatrixPanel::getComboBoxType(const juce::ComboBox* comboBox) {
+        if (comboBox->getComponentID().startsWith(SOURCE)) {
+            return ComboBoxType::source;
+        } else if (comboBox->getComponentID().startsWith(DESTINATION)) {
+            return ComboBoxType::destination;
+        } else {
+            return ComboBoxType::other;
+        }
+    }
+
+    int MatrixPanel::getComponentID(const ComboBoxType type, const juce::ComboBox* comboBox) const {
+        if (type == ComboBoxType::source) {
+            return parseComponentID(SOURCE, comboBox);
+        } else if (type == ComboBoxType::destination) {
+            return parseComponentID(DESTINATION, comboBox);
+        } else {
+            throw std::exception("invalid ComboBoxType");
+        }
+    }
+
+    /*
+     * rowElement->getParameterID() for actual parameterID
+     * rowElement->parameterID for previous parameterID
+     */
+    void MatrixPanel::updateAttachment(
+            const Combo& comboBoxThatHasChanged,
+            const Combo& anotherComboBox,
+            RowElement* rowElement
+    ) {
+        if (anotherComboBox->getSelectedItemIndex() > 0
+            && comboBoxThatHasChanged->getSelectedItemIndex() > 0) {
+            Attachment attachment(
+                    new juce::AudioProcessorValueTreeState::SliderAttachment(apvts,
+                                                                             rowElement->getParameterID(),
+                                                                             *rowElement->intensity)
+            );
+            rowElement->attachment = std::move(attachment);
+        } else if (comboBoxThatHasChanged->getSelectedItemIndex() <= 0) {
+            rowElement->attachment.reset();
+            auto valuePtr = apvts.getRawParameterValue(rowElement->parameterID);
+            if (valuePtr != nullptr) {
+                valuePtr->store(0.f);
+            }
+        }
     }
 
     MatrixPanel::~MatrixPanel() = default;

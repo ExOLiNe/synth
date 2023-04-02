@@ -125,20 +125,13 @@ namespace audio {
         LOAD_CURRENT_LFO_VALUE(Phase);
         LOAD_CURRENT_LFO_VALUE(Fine);
 
-        float maxFreq = 0.f;
-
         for (int i = 0; i < numSamples; ++i) {
-            //auto freqLfoOffset = frequency * /*lfo1FineAmpValues.current */ 0.1f * getSmoothValue(lfo1Values, numSamples, i);
-            //freqLfoOffset = 0.f;
-            const double finalFrequency = frequency; /** getSmoothValue(fineValues, numSamples, i) + freqLfoOffset*/;
-
-            if (finalFrequency > maxFreq) {
-                maxFreq = finalFrequency;
-            }
+            auto freqLfoOffset = frequency * lfo1FineAmpValues.current * getSmoothValue(lfo1Values, numSamples, i);
+            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i) + freqLfoOffset;
             currentWaveTable.shiftPhase();
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i);
             const float detune = getSmoothValue(detuneValues, numSamples, i);
-            float output = 0.0;
+            float output = 0.f;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
                 const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * ((float)voices / 2 - (float)voiceIndex));
 
@@ -156,12 +149,13 @@ namespace audio {
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
             if (lfo1GainAmp->load() > 0.0001f) {
-                output *= lfo1GainAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
+                output *= (1.f + lfo1GainAmp->load()) * getSmoothValue(lfo1Values, numSamples, i);
             }
             /*if (id == "osc1" && voiceId == 0) {
                 logger.log(lfo1Values.current);
             }*/
-            const float pan = getSmoothValue(panValues, numSamples, i)/* + getSmoothValue(lfo2Values, numSamples, i)*/;
+            const float pan = getSmoothValue(panValues, numSamples, i) +
+                    lfo1GainAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
