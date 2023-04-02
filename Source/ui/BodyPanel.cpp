@@ -8,7 +8,7 @@ namespace ui {
                          const std::vector<juce::String>& modulatorNames) :
     mainPanel(treeState)/*, matrixPanel(paramNamesAbleToModulate, modulatorNames)*/ {
         addAndMakeVisible(mainPanel);
-        auto matrixPanel = new MatrixPanel(paramNamesAbleToModulate, modulatorNames);
+        auto matrixPanel = new MatrixPanel(treeState, paramNamesAbleToModulate, modulatorNames);
         matrixPanel->setBounds(getLocalBounds());
         matrixViewPort.setViewedComponent(matrixPanel);
         addChildComponent(matrixViewPort);

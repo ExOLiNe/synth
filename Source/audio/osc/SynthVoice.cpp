@@ -27,14 +27,14 @@ namespace audio {
             volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)),
             lfo1(apvts.getRawParameterValue(lfo1Id)),
             lfo2(apvts.getRawParameterValue(lfo2Id)),
-            lfo1GainAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::level.name)),
-            lfo1PanAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::pan.name)),
-            lfo1PhaseAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::phase.name)),
-            lfo1FineAmp(apvts.getRawParameterValue(id + lfo1Id + params::osc::fine.name)),
-            lfo2GainAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::level.name)),
-            lfo2PanAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::pan.name)),
-            lfo2PhaseAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::phase.name)),
-            lfo2FineAmp(apvts.getRawParameterValue(id + lfo2Id + params::osc::fine.name)),
+            lfo1GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + lfo1Id)),
+            lfo1PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + lfo1Id)),
+            lfo1PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + lfo1Id)),
+            lfo1FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + lfo1Id)),
+            lfo2GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + lfo2Id)),
+            lfo2PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + lfo2Id)),
+            lfo2PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + lfo2Id)),
+            lfo2FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + lfo2Id)),
             currentWaveTableIndex((int)waveTableIndex->load()),
             waveTables(WaveTables::getInstance()->copyWaveTables())
                        {
@@ -155,11 +155,13 @@ namespace audio {
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
-            output *= getSmoothValue(lfo1Values, numSamples, i);
-            if (id == "osc1" && voiceId == 0) {
-                logger.log(lfo1Values.current);
+            if (lfo1GainAmp->load() > 0.0001f) {
+                output *= lfo1GainAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
             }
-            const float pan = getSmoothValue(panValues, numSamples, i) + getSmoothValue(lfo2Values, numSamples, i);
+            /*if (id == "osc1" && voiceId == 0) {
+                logger.log(lfo1Values.current);
+            }*/
+            const float pan = getSmoothValue(panValues, numSamples, i)/* + getSmoothValue(lfo2Values, numSamples, i)*/;
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }

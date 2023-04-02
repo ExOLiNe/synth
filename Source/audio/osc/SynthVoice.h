@@ -71,6 +71,7 @@ private:
     void updateADSR();
 
     const juce::String id;
+    [[maybe_unused]]
     const size_t voiceId;
     const juce::String lfo1Id = LFO_1;
     const juce::String lfo2Id = LFO_2;

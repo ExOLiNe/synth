@@ -272,7 +272,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::voices.minValue,
                         osc::voices.maxValue,
                         osc::voices.defaultValue));
-        paramNamesAbleToModulate.emplace_back(voicesName);
         params.emplace_back(
                 make_unique<Param_f> (
                         detune,
@@ -280,7 +279,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::voices.minValue,
                         osc::voices.maxValue,
                         osc::voices.defaultValue ));
-        paramNamesAbleToModulate.emplace_back(detune);
         params.emplace_back(
                 make_unique<Param_i> (
                         phase,
@@ -317,7 +315,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         osc::level.defaultValue
                 )
         );
-        paramNamesAbleToModulate.emplace_back(semitone);
         params.emplace_back(
                 make_unique<Param_i> (
                         semitone,
@@ -350,8 +347,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         // LFO Modulators
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_1 + params::osc::level.name,
-                        oscId + LFO_1 + params::osc::level.name,
+                        oscId + params::osc::level.name + LFO_1,
+                        oscId + params::osc::level.name + LFO_1,
                         0.f,
                         1.f,
                         0.f
@@ -359,8 +356,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                 );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_2 + params::osc::level.name,
-                        oscId + LFO_2 + params::osc::level.name,
+                        oscId + params::osc::level.name + LFO_2,
+                        oscId + params::osc::level.name + LFO_2,
                         0.f,
                         1.f,
                         0.f
@@ -368,8 +365,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_1 + params::osc::pan.name,
-                        oscId + LFO_1 + params::osc::pan.name,
+                        oscId + params::osc::pan.name + LFO_1,
+                        oscId + params::osc::pan.name + LFO_1,
                         0.f,
                         1.f,
                         0.f
@@ -377,8 +374,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_2 + params::osc::pan.name,
-                        oscId + LFO_2 + params::osc::pan.name,
+                        oscId + params::osc::pan.name + LFO_2,
+                        oscId + params::osc::pan.name + LFO_2,
                         0.f,
                         1.f,
                         0.f
@@ -386,8 +383,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_1 + params::osc::phase.name,
-                        oscId + LFO_1 + params::osc::phase.name,
+                        oscId + params::osc::phase.name + LFO_1,
+                        oscId + params::osc::phase.name + LFO_1,
                         0.f,
                         1.f,
                         0.f
@@ -395,8 +392,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_2 + params::osc::phase.name,
-                        oscId + LFO_2 + params::osc::phase.name,
+                        oscId + params::osc::phase.name + LFO_2,
+                        oscId + params::osc::phase.name + LFO_2,
                         0.f,
                         1.f,
                         0.f
@@ -404,8 +401,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_1 + params::osc::fine.name,
-                        oscId + LFO_1 + params::osc::fine.name,
+                        oscId + params::osc::fine.name + LFO_1,
+                        oscId + params::osc::fine.name + LFO_1,
                         0.f,
                         1.f,
                         0.f
@@ -413,8 +410,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
         );
         params.emplace_back(
                 make_unique<Param_f>(
-                        oscId + LFO_2 + params::osc::fine.name,
-                        oscId + LFO_2 + params::osc::fine.name,
+                        oscId + params::osc::fine.name + LFO_2,
+                        oscId + params::osc::fine.name + LFO_2,
                         0.f,
                         1.f,
                         0.f
