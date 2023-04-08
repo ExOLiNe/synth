@@ -1,7 +1,7 @@
 #include "Constants.h"
 
 namespace params {
-    std::string volumeADSRName(ADSR_VOLUME);
+    [[clang::no_destroy]] std::string volumeADSRName(ADSR_VOLUME);
     namespace osc {
         Str waveTableTypeName = "waveTableType";
         Param<unsigned int> voices {"voices", 1, 12, 1};

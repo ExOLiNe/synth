@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "juce_core/juce_core.h"
+#include "juce_core.h"
 #include "../../other/polymorphic_readonly_array.h"
 #include <cmath>
 

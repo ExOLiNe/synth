@@ -1,9 +1,9 @@
 #pragma once
 
-#include "juce_audio_processors/juce_audio_processors.h"
+#include "juce_audio_processors.h"
 #include "../wave/WaveTables.h"
 #include "../../other/polymorphic_readonly_array.h"
-#include <juce_dsp/juce_dsp.h>
+#include <juce_dsp.h>
 #include "../../Constants.h"
 #include <cstdarg>
 #include "../../other/HighFrequencyLogger.h"

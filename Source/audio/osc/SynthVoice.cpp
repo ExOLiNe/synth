@@ -4,7 +4,7 @@
 
 #include "SynthVoice.h"
 #include "SynthSound.h"
-#include <juce_gui_extra/juce_gui_extra.h>
+#include <juce_gui_extra.h>
 #include <cmath>
 
 namespace audio {
@@ -125,11 +125,14 @@ namespace audio {
         LOAD_CURRENT_LFO_VALUE(Phase);
         LOAD_CURRENT_LFO_VALUE(Fine);
 
+        auto sampleRate = getSampleRate();
+
         for (int i = 0; i < numSamples; ++i) {
             auto freqLfoOffset = frequency * lfo1FineAmpValues.current * getSmoothValue(lfo1Values, numSamples, i);
             const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i) + freqLfoOffset;
             currentWaveTable.shiftPhase();
-            const float phaseOffset = getSmoothValue(phaseValues, numSamples, i);
+            const float phaseOffset = getSmoothValue(phaseValues, numSamples, i)
+                    + sampleRate / finalFrequency * lfo1PhaseAmp->load();
             const float detune = getSmoothValue(detuneValues, numSamples, i);
             float output = 0.f;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
@@ -155,7 +158,7 @@ namespace audio {
                 logger.log(lfo1Values.current);
             }*/
             const float pan = getSmoothValue(panValues, numSamples, i) +
-                    lfo1GainAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
+                    lfo1PanAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }

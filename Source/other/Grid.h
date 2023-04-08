@@ -1,7 +1,8 @@
 //
 // Created by Aleksandr on 19-Feb-23.
 //
-#include <juce_gui_basics/juce_gui_basics.h>
+//#include <juce_gui_basics.h>
+#include <juce_gui_basics.h>
 
 class Grid {
 public:

@@ -3,7 +3,7 @@
 //
 
 #include "LFO.h"
-#include "juce_core/juce_core.h"
+#include <juce_core.h>
 
 namespace audio {
     LFO::LFO(std::atomic<float> *lfoValue, const std::atomic<float>* frequency) : lfoValue(lfoValue), frequency(frequency) {

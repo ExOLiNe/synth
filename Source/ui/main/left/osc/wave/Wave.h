@@ -1,7 +1,7 @@
 #pragma once
 
-#include <juce_core/juce_core.h>
-#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_core.h>
+#include <juce_gui_basics.h>
 #include <juce_opengl/juce_opengl.h>
 #include <sstream>
 #include <mutex>
@@ -342,7 +342,6 @@ private:
     size_t xSize;
     size_t zSize;
 
-    int frame = 0;
     bool prepare = false;
 
     std::mutex renderMutex;

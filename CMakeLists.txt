@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(PROJECT_NAME Synth)
+set(CMAKE_CXX_STANDARD 20)
 
 project(${PROJECT_NAME} VERSION 0.0.1)
+
 
 function(add_images_from_directory target assetsSubFolder)
     set (AssetsDir ${CMAKE_CURRENT_LIST_DIR}/${assetsSubFolder})
@@ -20,7 +22,7 @@ endfunction()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+#set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 #Compile commands, useful for some IDEs like VS-Code
 #set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
@@ -40,7 +42,8 @@ juce_add_plugin("${PROJECT_NAME}"
         PLUGIN_MANUFACTURER_CODE LPug
         PLUGIN_CODE LPUG
         FORMATS AU VST3 Standalone
-        PRODUCT_NAME "LoadPug${PROJECT_NAME}")
+        PRODUCT_NAME "LoudPug${PROJECT_NAME}${CMAKE_BUILD_TYPE}"
+        #[[VST3_COPY_DIR "C:\\Program Files\\Common Files\\VST3\\loudpug\\"]])
 
 add_images_from_directory(${PROJECT_NAME} Assets)
 
@@ -78,20 +81,24 @@ target_sources(${PROJECT_NAME}
         Source/audio/lfo/LFO.cpp
         )
 
+include_directories(SYSTEM JUCE/modules)
+
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
-        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_gui_app` call
-        JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_gui_app` call
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0)
-
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
-else()
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE
-            -Wall -Wextra -Wpedantic -Werror
+            -Wall -Wextra #[[-Werror]] #[[-Wno-old-style-cast]]
+            -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-undef
+            -Wno-documentation-unknown-command
             )
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 endif()
+
+include_directories(Source/juce)
 
 
 target_link_libraries(${PROJECT_NAME}
