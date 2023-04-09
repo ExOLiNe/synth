@@ -12,46 +12,17 @@ namespace audio {
 
     SynthVoice::SynthVoice(const juce::AudioProcessorValueTreeState& apvts, const juce::String id, const size_t voiceId):
             id(id), voiceId(voiceId),
-            waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
-            waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
-            gainAtomic(apvts.getRawParameterValue(id + params::osc::level.name)),
-            panAtomic(apvts.getRawParameterValue(id + params::osc::pan.name)),
-            voicesAtomic(apvts.getRawParameterValue(id + params::osc::voices.name)),
-            detuneAtomic(apvts.getRawParameterValue(id + params::osc::detune.name)),
-            phaseAtomic(apvts.getRawParameterValue(id + params::osc::phase.name)),
-            semitoneAtomic(apvts.getRawParameterValue(id + params::osc::semitone.name)),
-            fineAtomic(apvts.getRawParameterValue(id + params::osc::fine.name)),
-            volumeAttack(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::attack.name)),
-            volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
-            volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
-            volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)),
-            ADSR1Attack(apvts.getRawParameterValue(adsr1Id + params::adsr::attack.name)),
-            ADSR1Decay(apvts.getRawParameterValue(adsr1Id + params::adsr::decay.name)),
-            ADSR1Sustain(apvts.getRawParameterValue(adsr1Id + params::adsr::sustain.name)),
-            ADSR1Release(apvts.getRawParameterValue(adsr1Id + params::adsr::release.name)),
-            ADSR2Attack(apvts.getRawParameterValue(adsr2Id + params::adsr::attack.name)),
-            ADSR2Decay(apvts.getRawParameterValue(adsr2Id + params::adsr::decay.name)),
-            ADSR2Sustain(apvts.getRawParameterValue(adsr2Id + params::adsr::sustain.name)),
-            ADSR2Release(apvts.getRawParameterValue(adsr2Id + params::adsr::release.name)),
-            ADSR1GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + adsr1Id)),
-            ADSR1PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + adsr1Id)),
-            ADSR1PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + adsr1Id)),
-            ADSR1FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + adsr1Id)),
-            ADSR2GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + adsr2Id)),
-            ADSR2PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + adsr2Id)),
-            ADSR2PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + adsr2Id)),
-            ADSR2FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + adsr2Id)),
+            oscParams(apvts, id),
+            volumeAdsrParams(apvts, params::volumeADSRName),
+            adsr1Params(apvts, adsr1Id),
+            adsr2Params(apvts, adsr2Id),
+            adsr1Amps(apvts, id, adsr1Id),
+            adsr2Amps(apvts, id, adsr2Id),
+            lfo1Amps(apvts, id, lfo1Id),
+            lfo2Amps(apvts, id, lfo2Id),
             lfo1(apvts.getRawParameterValue(lfo1Id)),
             lfo2(apvts.getRawParameterValue(lfo2Id)),
-            lfo1GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + lfo1Id)),
-            lfo1PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + lfo1Id)),
-            lfo1PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + lfo1Id)),
-            lfo1FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + lfo1Id)),
-            lfo2GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + lfo2Id)),
-            lfo2PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + lfo2Id)),
-            lfo2PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + lfo2Id)),
-            lfo2FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + lfo2Id)),
-            currentWaveTableIndex((int)waveTableIndex->load()),
+            currentWaveTableIndex((int)oscParams.waveTableIndex->load()),
             waveTables(WaveTables::getInstance()->copyWaveTables())
                        {
 
@@ -64,7 +35,7 @@ namespace audio {
     void SynthVoice::startNote(int midiNoteNumber, float, juce::SynthesiserSound *,
                                int) {
         midiNote = midiNoteNumber;
-        frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)semitoneAtomic->load());
+        frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)oscParams.semitone->load());
         for (auto & table : waveTables) {
             table.resetPhaseOffset();
         }
@@ -102,7 +73,7 @@ namespace audio {
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
-        if (gainAtomic->load() == 0.0f) {
+        if (oscParams.gain->load() == 0.0f) {
             return;
         }
 
@@ -151,11 +122,11 @@ namespace audio {
         const float lowerWaveGainFactor = 1.0f - upperWaveGainFactor;
 
         fineValues.current = getFine();
-        phaseValues.current = phaseAtomic->load();
-        detuneValues.current = detuneAtomic->load();
-        gainValues.current = gainAtomic->load();
-        panValues.current = panAtomic->load();
-        const int voices = (int)voicesAtomic->load();
+        phaseValues.current = oscParams.phase->load();
+        detuneValues.current = oscParams.detune->load();
+        gainValues.current = oscParams.gain->load();
+        panValues.current = oscParams.pan->load();
+        const int voices = (int)oscParams.voices->load();
 
         lfo1Values.current = lfo1->load();
         lfo2Values.current = lfo2->load();
@@ -167,19 +138,19 @@ namespace audio {
 
         auto sampleRate = getSampleRate();
 
-        auto lfo1FineAmpValue = lfo1FineAmp->load();
-        auto lfo2FineAmpValue = lfo2FineAmp->load();
+        auto lfo1FineAmpValue = lfo1Amps.fineAmp->load();
+        auto lfo2FineAmpValue = lfo2Amps.fineAmp->load();
 
         for (int i = 0; i < numSamples; ++i) {
             auto freqLFO1Offset = frequency * lfo1FineAmpValue * getSmoothValue(lfo1Values, numSamples, i);
             auto freqLFO2Offset = frequency * lfo2FineAmpValue * getSmoothValue(lfo2Values, numSamples, i);
-            auto freqADSR1Offset = frequency * ADSR1Ptr[i] * ADSR1FineAmp->load();
-            auto freqADSR2Offset = frequency * ADSR2Ptr[i] * ADSR2FineAmp->load();
+            auto freqADSR1Offset = frequency * ADSR1Ptr[i] * adsr1Amps.fineAmp->load();
+            auto freqADSR2Offset = frequency * ADSR2Ptr[i] * adsr2Amps.fineAmp->load();
             const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i)
                                           + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
             currentWaveTable.shiftPhase();
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i)
-                    + sampleRate / finalFrequency * lfo1PhaseAmp->load();
+                    + sampleRate / finalFrequency * lfo1Amps.phaseAmp->load();
             const float detune = getSmoothValue(detuneValues, numSamples, i);
             float output = 0.f;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
@@ -198,17 +169,17 @@ namespace audio {
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
-            if (lfo1GainAmp->load() > 0.0001f) {
-                output *= (1.f + lfo1GainAmp->load()) * getSmoothValue(lfo1Values, numSamples, i);
+            if (lfo1Amps.gainAmp->load() > 0.0001f) {
+                output *= (1.f + lfo1Amps.gainAmp->load()) * getSmoothValue(lfo1Values, numSamples, i);
             }
-            if (lfo2GainAmp->load() > 0.0001f) {
-                output *= (1.f + lfo2GainAmp->load()) * getSmoothValue(lfo2Values, numSamples, i);
+            if (lfo2Amps.gainAmp->load() > 0.0001f) {
+                output *= (1.f + lfo2Amps.gainAmp->load()) * getSmoothValue(lfo2Values, numSamples, i);
             }
             /*if (id == "osc1" && voiceId == 0) {
                 logger.log(lfo1Values.current);
             }*/
             const float pan = getSmoothValue(panValues, numSamples, i) +
-                    lfo1PanAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
+                    lfo1Amps.panAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
@@ -230,7 +201,7 @@ namespace audio {
     }
 
     float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable) const {
-        return waveTablePos->load() / 100 * (waveTable.waveTable.size() - 1);
+        return oscParams.waveTablePos->load() / 100 * (waveTable.waveTable.size() - 1);
     }
 
     float SynthVoice::getPanGain(const Channel& channel, float pan) const {
@@ -239,39 +210,39 @@ namespace audio {
     }
 
     void SynthVoice::updateADSR() {
-        ADSR1Params.attack = ADSR1Attack->load() * params::adsr::attackFactor;
-        ADSR1Params.decay = ADSR1Decay->load() * params::adsr::decayFactor;
-        ADSR1Params.sustain = ADSR1Sustain->load() * params::adsr::sustainFactor;
-        ADSR1Params.release = ADSR1Release->load() * params::adsr::releaseFactor;
+        ADSR1Params.attack = adsr1Params.attack->load() * params::adsr::attackFactor;
+        ADSR1Params.decay = adsr1Params.decay->load() * params::adsr::decayFactor;
+        ADSR1Params.sustain = adsr1Params.sustain->load() * params::adsr::sustainFactor;
+        ADSR1Params.release = adsr1Params.release->load() * params::adsr::releaseFactor;
         ADSR1.setParameters(ADSR1Params);
 
-        ADSR2Params.attack = ADSR2Attack->load() * params::adsr::attackFactor;
-        ADSR2Params.decay = ADSR2Decay->load() * params::adsr::decayFactor;
-        ADSR2Params.sustain = ADSR2Sustain->load() * params::adsr::sustainFactor;
-        ADSR2Params.release = ADSR2Release->load() * params::adsr::releaseFactor;
+        ADSR2Params.attack = adsr2Params.attack->load() * params::adsr::attackFactor;
+        ADSR2Params.decay = adsr2Params.decay->load() * params::adsr::decayFactor;
+        ADSR2Params.sustain = adsr2Params.sustain->load() * params::adsr::sustainFactor;
+        ADSR2Params.release = adsr2Params.release->load() * params::adsr::releaseFactor;
         ADSR2.setParameters(ADSR2Params);
 
-        volumeADSRParams.attack = volumeAttack->load() * params::adsr::attackFactor;
-        volumeADSRParams.decay = volumeDecay->load() * params::adsr::decayFactor;
-        volumeADSRParams.sustain = volumeSustain->load() * params::adsr::sustainFactor;
-        volumeADSRParams.release = volumeRelease->load() * params::adsr::releaseFactor;
+        volumeADSRParams.attack = volumeAdsrParams.attack->load() * params::adsr::attackFactor;
+        volumeADSRParams.decay = volumeAdsrParams.decay->load() * params::adsr::decayFactor;
+        volumeADSRParams.sustain = volumeAdsrParams.sustain->load() * params::adsr::sustainFactor;
+        volumeADSRParams.release = volumeAdsrParams.release->load() * params::adsr::releaseFactor;
         volumeADSR.setParameters(volumeADSRParams);
     }
 
     void SynthVoice::updateSemitone() {
-        if (previousSemitoneOffset != (int)semitoneAtomic->load()) {
-            frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)semitoneAtomic->load());
-            previousSemitoneOffset = (int)semitoneAtomic->load();
+        if (previousSemitoneOffset != (int)oscParams.semitone->load()) {
+            frequency = juce::MidiMessage::getMidiNoteInHertz(midiNote + (int)oscParams.semitone->load());
+            previousSemitoneOffset = (int)oscParams.semitone->load();
         }
     }
 
     void SynthVoice::updateWaveTableIndex() {
-        currentWaveTableIndex = (int)waveTableIndex->load() - 1;
+        currentWaveTableIndex = (int)oscParams.waveTableIndex->load() - 1;
         if (currentWaveTableIndex == -1) currentWaveTableIndex = 0;
     }
 
     float SynthVoice::getFine() const {
-        return (float)std::pow(fineFactor, fineAtomic->load());
+        return (float)std::pow(fineFactor, oscParams.fine->load());
     }
 
     //float SynthVoice::getSmoothValue(const EffectValues& values, int bufSize, int step)

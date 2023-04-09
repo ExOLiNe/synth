@@ -18,6 +18,58 @@
     static_assert(false, numfos);*/
 
 namespace audio {
+    struct OscParams {
+        OscParams(const juce::AudioProcessorValueTreeState& apvts, const juce::String& id):
+                waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
+                waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
+                gain(apvts.getRawParameterValue(id + params::osc::level.name)),
+                pan(apvts.getRawParameterValue(id + params::osc::pan.name)),
+                voices(apvts.getRawParameterValue(id + params::osc::voices.name)),
+                detune(apvts.getRawParameterValue(id + params::osc::detune.name)),
+                phase(apvts.getRawParameterValue(id + params::osc::phase.name)),
+                semitone(apvts.getRawParameterValue(id + params::osc::semitone.name)),
+                fine(apvts.getRawParameterValue(id + params::osc::fine.name)) {}
+
+        std::atomic<float>* waveTableIndex;
+        std::atomic<float>* waveTablePos;
+        std::atomic<float>* gain;
+        std::atomic<float>* pan;
+        std::atomic<float>* voices;
+        std::atomic<float>* detune;
+        std::atomic<float>* phase;
+        std::atomic<float>* semitone;
+        std::atomic<float>* fine;
+    };
+
+    struct ADSRParams {
+        ADSRParams(const juce::AudioProcessorValueTreeState& apvts, const juce::String& adsrName):
+                attack(apvts.getRawParameterValue(adsrName + params::adsr::attack.name)),
+                decay(apvts.getRawParameterValue(adsrName + params::adsr::decay.name)),
+                sustain(apvts.getRawParameterValue(adsrName + params::adsr::sustain.name)),
+                release(apvts.getRawParameterValue(adsrName + params::adsr::release.name))
+        {
+
+        }
+        std::atomic<float>* attack;
+        std::atomic<float>* decay;
+        std::atomic<float>* sustain;
+        std::atomic<float>* release;
+    };
+
+    struct ModulatorParamAmps {
+        ModulatorParamAmps(const juce::AudioProcessorValueTreeState& apvts, const juce::String& oscId, const juce::String& modulatorId):
+            gainAmp(apvts.getRawParameterValue(oscId + params::osc::level.name + modulatorId)),
+            panAmp(apvts.getRawParameterValue(oscId + params::osc::pan.name + modulatorId)),
+            phaseAmp(apvts.getRawParameterValue(oscId + params::osc::phase.name + modulatorId)),
+            fineAmp(apvts.getRawParameterValue(oscId + params::osc::fine.name + modulatorId)) {}
+
+        std::atomic<float>* gainAmp;
+        std::atomic<float>* panAmp;
+        std::atomic<float>* phaseAmp;
+        std::atomic<float>* fineAmp;
+    };
+
+
     template<typename T>
     struct EffectValues {
         T previous;
@@ -87,21 +139,21 @@ private:
     juce::ADSR ADSR2;
     juce::ADSR::Parameters ADSR2Params;
 
-    const std::atomic<float> *waveTableIndex, *waveTablePos, *gainAtomic, *panAtomic,
-        *voicesAtomic, *detuneAtomic, *phaseAtomic, *semitoneAtomic, *fineAtomic;
+    OscParams oscParams;
 
-    const std::atomic<float> *volumeAttack, *volumeDecay, *volumeSustain, *volumeRelease;
-    const std::atomic<float> *ADSR1Attack, *ADSR1Decay, *ADSR1Sustain, *ADSR1Release;
-    const std::atomic<float> *ADSR2Attack, *ADSR2Decay, *ADSR2Sustain, *ADSR2Release;
+    ADSRParams volumeAdsrParams;
+    ADSRParams adsr1Params;
+    ADSRParams adsr2Params;
 
-    const std::atomic<float> *ADSR1GainAmp, *ADSR1PanAmp, *ADSR1PhaseAmp, *ADSR1FineAmp;
-    const std::atomic<float> *ADSR2GainAmp, *ADSR2PanAmp, *ADSR2PhaseAmp, *ADSR2FineAmp;
+
+    ModulatorParamAmps adsr1Amps;
+    ModulatorParamAmps adsr2Amps;
+    ModulatorParamAmps lfo1Amps;
+    ModulatorParamAmps lfo2Amps;
 
     //TODO add common amp lfo value
     const std::atomic<float> *lfo1, *lfo2;
 
-    const std::atomic<float> *lfo1GainAmp, *lfo1PanAmp, *lfo1PhaseAmp, *lfo1FineAmp;
-    const std::atomic<float> *lfo2GainAmp, *lfo2PanAmp, *lfo2PhaseAmp, *lfo2FineAmp;
 
     int currentWaveTableIndex = -1;
     std::vector<WaveTable> waveTables;
@@ -109,14 +161,9 @@ private:
     int midiNote;
     int previousSemitoneOffset = 0;
 
-    EffectValues<float> fineValues, phaseValues, detuneValues, gainValues, panValues;
+    EffectValues<float> fineValues {}, phaseValues {}, detuneValues {}, gainValues {}, panValues {};
 
     EffectValues<float> lfo1Values, lfo2Values;
-
-    /*EffectValues<float> lfo1GainAmpValues, lfo2GainAmpValues;
-    EffectValues<float> lfo1PanAmpValues, lfo2PanAmpValues;
-    EffectValues<float> lfo1PhaseAmpValues, lfo2PhaseAmpValues;
-    EffectValues<float> lfo1FineAmpValues, lfo2FineAmpValues;*/
 
     double frequency = 0.0;
 
