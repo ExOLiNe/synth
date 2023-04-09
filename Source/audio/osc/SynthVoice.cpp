@@ -25,6 +25,22 @@ namespace audio {
             volumeDecay(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::decay.name)),
             volumeSustain(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::sustain.name)),
             volumeRelease(apvts.getRawParameterValue(params::volumeADSRName + params::adsr::release.name)),
+            ADSR1Attack(apvts.getRawParameterValue(adsr1Id + params::adsr::attack.name)),
+            ADSR1Decay(apvts.getRawParameterValue(adsr1Id + params::adsr::decay.name)),
+            ADSR1Sustain(apvts.getRawParameterValue(adsr1Id + params::adsr::sustain.name)),
+            ADSR1Release(apvts.getRawParameterValue(adsr1Id + params::adsr::release.name)),
+            ADSR2Attack(apvts.getRawParameterValue(adsr2Id + params::adsr::attack.name)),
+            ADSR2Decay(apvts.getRawParameterValue(adsr2Id + params::adsr::decay.name)),
+            ADSR2Sustain(apvts.getRawParameterValue(adsr2Id + params::adsr::sustain.name)),
+            ADSR2Release(apvts.getRawParameterValue(adsr2Id + params::adsr::release.name)),
+            ADSR1GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + adsr1Id)),
+            ADSR1PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + adsr1Id)),
+            ADSR1PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + adsr1Id)),
+            ADSR1FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + adsr1Id)),
+            ADSR2GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + adsr2Id)),
+            ADSR2PanAmp(apvts.getRawParameterValue(id + params::osc::pan.name + adsr2Id)),
+            ADSR2PhaseAmp(apvts.getRawParameterValue(id + params::osc::phase.name + adsr2Id)),
+            ADSR2FineAmp(apvts.getRawParameterValue(id + params::osc::fine.name + adsr2Id)),
             lfo1(apvts.getRawParameterValue(lfo1Id)),
             lfo2(apvts.getRawParameterValue(lfo2Id)),
             lfo1GainAmp(apvts.getRawParameterValue(id + params::osc::level.name + lfo1Id)),
@@ -53,10 +69,14 @@ namespace audio {
             table.resetPhaseOffset();
         }
         volumeADSR.noteOn();
+        ADSR1.noteOn();
+        ADSR2.noteOn();
     }
 
     void SynthVoice::stopNote(float, bool) {
         volumeADSR.noteOff();
+        ADSR1.noteOff();
+        ADSR2.noteOff();
     }
 
     void SynthVoice::pitchWheelMoved(int) {
@@ -71,6 +91,14 @@ namespace audio {
         volumeADSR.setSampleRate(sampleRate);
         volumeADSR.setParameters(volumeADSRParams);
         volumeADSR.reset();
+
+        ADSR1.setSampleRate(sampleRate);
+        ADSR1.setParameters(ADSR1Params);
+        ADSR1.reset();
+
+        ADSR2.setSampleRate(sampleRate);
+        ADSR2.setParameters(ADSR2Params);
+        ADSR2.reset();
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
@@ -81,15 +109,27 @@ namespace audio {
         currentVoiceBuffer.clear();
         if (currentVoiceBuffer.getNumSamples() < numSamples) {
             currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
+            ADSR1Buffer.setSize(outputBuffer.getNumChannels(), numSamples);
+            ADSR2Buffer.setSize(outputBuffer.getNumChannels(), numSamples);
         }
+
+        auto ADSR1Ptr = ADSR1Buffer.getWritePointer(0);
+        auto ADSR2Ptr = ADSR2Buffer.getWritePointer(0);
+        for (int i = 0; i < numSamples; ++i) {
+            ADSR1Ptr[i] = 1.f;
+            ADSR2Ptr[i] = 1.f;
+        }
+
+        ADSR1.applyEnvelopeToBuffer(ADSR1Buffer, 0, numSamples);
+        ADSR2.applyEnvelopeToBuffer(ADSR2Buffer, 0, numSamples);
 
         updatePreviousValues(
             fineValues, phaseValues, detuneValues, gainValues, panValues,
 
-            lfo1GainAmpValues,  lfo2GainAmpValues,
+            /*lfo1GainAmpValues,  lfo2GainAmpValues,
             lfo1PanAmpValues,   lfo2PanAmpValues,
             lfo1PhaseAmpValues, lfo2PhaseAmpValues,
-            lfo1FineAmpValues,  lfo2FineAmpValues,
+            lfo1FineAmpValues,  lfo2FineAmpValues,*/
             lfo1Values, lfo2Values
         );
 
@@ -120,16 +160,23 @@ namespace audio {
         lfo1Values.current = lfo1->load();
         lfo2Values.current = lfo2->load();
 
-        LOAD_CURRENT_LFO_VALUE(Gain);
+        /*LOAD_CURRENT_LFO_VALUE(Gain);
         LOAD_CURRENT_LFO_VALUE(Pan);
         LOAD_CURRENT_LFO_VALUE(Phase);
-        LOAD_CURRENT_LFO_VALUE(Fine);
+        LOAD_CURRENT_LFO_VALUE(Fine);*/
 
         auto sampleRate = getSampleRate();
 
+        auto lfo1FineAmpValue = lfo1FineAmp->load();
+        auto lfo2FineAmpValue = lfo2FineAmp->load();
+
         for (int i = 0; i < numSamples; ++i) {
-            auto freqLfoOffset = frequency * lfo1FineAmpValues.current * getSmoothValue(lfo1Values, numSamples, i);
-            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i) + freqLfoOffset;
+            auto freqLFO1Offset = frequency * lfo1FineAmpValue * getSmoothValue(lfo1Values, numSamples, i);
+            auto freqLFO2Offset = frequency * lfo2FineAmpValue * getSmoothValue(lfo2Values, numSamples, i);
+            auto freqADSR1Offset = frequency * ADSR1Ptr[i] * ADSR1FineAmp->load();
+            auto freqADSR2Offset = frequency * ADSR2Ptr[i] * ADSR2FineAmp->load();
+            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i)
+                                          + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
             currentWaveTable.shiftPhase();
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i)
                     + sampleRate / finalFrequency * lfo1PhaseAmp->load();
@@ -153,6 +200,9 @@ namespace audio {
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
             if (lfo1GainAmp->load() > 0.0001f) {
                 output *= (1.f + lfo1GainAmp->load()) * getSmoothValue(lfo1Values, numSamples, i);
+            }
+            if (lfo2GainAmp->load() > 0.0001f) {
+                output *= (1.f + lfo2GainAmp->load()) * getSmoothValue(lfo2Values, numSamples, i);
             }
             /*if (id == "osc1" && voiceId == 0) {
                 logger.log(lfo1Values.current);
@@ -189,6 +239,18 @@ namespace audio {
     }
 
     void SynthVoice::updateADSR() {
+        ADSR1Params.attack = ADSR1Attack->load() * params::adsr::attackFactor;
+        ADSR1Params.decay = ADSR1Decay->load() * params::adsr::decayFactor;
+        ADSR1Params.sustain = ADSR1Sustain->load() * params::adsr::sustainFactor;
+        ADSR1Params.release = ADSR1Release->load() * params::adsr::releaseFactor;
+        ADSR1.setParameters(ADSR1Params);
+
+        ADSR2Params.attack = ADSR2Attack->load() * params::adsr::attackFactor;
+        ADSR2Params.decay = ADSR2Decay->load() * params::adsr::decayFactor;
+        ADSR2Params.sustain = ADSR2Sustain->load() * params::adsr::sustainFactor;
+        ADSR2Params.release = ADSR2Release->load() * params::adsr::releaseFactor;
+        ADSR2.setParameters(ADSR2Params);
+
         volumeADSRParams.attack = volumeAttack->load() * params::adsr::attackFactor;
         volumeADSRParams.decay = volumeDecay->load() * params::adsr::decayFactor;
         volumeADSRParams.sustain = volumeSustain->load() * params::adsr::sustainFactor;

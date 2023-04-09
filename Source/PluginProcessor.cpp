@@ -47,7 +47,7 @@ lfo2(treeState.getRawParameterValue(LFO_2), treeState.getRawParameterValue(juce:
 
 SynthAudioProcessor::~SynthAudioProcessor()
 {
-    delete audio::WaveTables::getInstance();
+    //delete audio::WaveTables::getInstance();
 }
 
 //==============================================================================
@@ -254,6 +254,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
     using namespace params;
 
     size_t waveTableTypesTotal = audio::WaveTables::getInstance()->getTotal();
+    jassert(waveTableTypesTotal);
     for (auto const &oscId : oscillators) {
         string waveTableTypeName = oscId + osc::waveTableTypeName;
         string voicesName = oscId + osc::voices.name;
@@ -417,6 +418,85 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         0.f
                 )
         );
+
+        //ADSR Modulators
+
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::level.name + ADSR_1,
+                        oscId + params::osc::level.name + ADSR_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::level.name + ADSR_2,
+                        oscId + params::osc::level.name + ADSR_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::pan.name + ADSR_1,
+                        oscId + params::osc::pan.name + ADSR_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::pan.name + ADSR_2,
+                        oscId + params::osc::pan.name + ADSR_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::phase.name + ADSR_1,
+                        oscId + params::osc::phase.name + ADSR_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::phase.name + ADSR_2,
+                        oscId + params::osc::phase.name + ADSR_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::fine.name + ADSR_1,
+                        oscId + params::osc::fine.name + ADSR_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::fine.name + ADSR_2,
+                        oscId + params::osc::fine.name + ADSR_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+
     }
 
     vector<string> fms = { FM_A, FM_B };
@@ -535,6 +615,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         adsr::release.defaultValue
                 )
         );
+
+        // adsr value calculated from adsr object
+        /*params.emplace_back(
+                make_unique<Param_f> (
+                        adsrId,
+                        adsrId,
+                        -1.f,
+                        1.f,
+                        0.f
+                )
+        );*/
     }
 
     {

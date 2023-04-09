@@ -9,7 +9,7 @@ namespace ui {
 #define DESTINATION "destination"
     enum struct ComboBoxType { source, destination, other };
 
-    int parseComponentID(const char* prefix, const juce::ComboBox* combo);
+    int parseComponentID(juce::String prefix, const juce::ComboBox* combo);
 
     using Combo = std::unique_ptr<juce::ComboBox>;
     using SourceCombo = Combo;

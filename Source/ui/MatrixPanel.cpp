@@ -8,8 +8,8 @@
 #define SLOTS 20
 
 namespace ui {
-    int parseComponentID(const char* prefix, const juce::ComboBox* combo)  {
-        return atoi(combo->getComponentID().substring(sizeof(prefix) - 1).toRawUTF8());
+    int parseComponentID(juce::String prefix, const juce::ComboBox* combo)  {
+        return atoi(combo->getComponentID().substring(prefix.length()).toRawUTF8());
     }
 
     MatrixPanel::MatrixPanel(
@@ -138,6 +138,7 @@ namespace ui {
                                                                              *rowElement->intensity)
             );
             rowElement->attachment = std::move(attachment);
+            rowElement->parameterID = rowElement->getParameterID();
         } else if (comboBoxThatHasChanged->getSelectedItemIndex() <= 0) {
             rowElement->attachment.reset();
             auto valuePtr = apvts.getRawParameterValue(rowElement->parameterID);
