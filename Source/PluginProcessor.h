@@ -12,6 +12,7 @@
 #include "Constants.h"
 #include "audio/wave/WaveTables.h"
 #include "audio/lfo/LFO.h"
+#include "logging/Measurement.h"
 
 //==============================================================================
 /**
@@ -62,8 +63,6 @@ public:
     const std::vector<juce::String>& getParamNamesAbleToModulate() const;
     const std::vector<juce::String>& getModulatorNames() const;
 private:
-    //std::atomic<float> *lfoFreq = new std::atomic<float>(3.f);
-
     audio::SinWave wave;
     juce::OwnedArray<juce::Synthesiser> oscillators;
     std::vector<juce::String> oscIds { OSC1, OSC2 };
@@ -72,6 +71,8 @@ private:
     std::vector<juce::String> modulatorNames;
     juce::AudioProcessorValueTreeState treeState;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
+
+    Measurement<> measurement;
 
     audio::LFO lfo1, lfo2;
 

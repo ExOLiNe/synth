@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <juce_core.h>
+#include "juce_core.h"
 
 using namespace std::chrono;
 class HighFrequencyLogger {

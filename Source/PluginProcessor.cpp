@@ -165,7 +165,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 {
     buffer.clear();
 
-    auto start = std::chrono::high_resolution_clock::now();
+    measurement.start();
 
     for (int i = 0; i < oscillators.size(); ++i) {
         juce::AudioBuffer<float>& oscOutputBuffer = oscOutputBuffers[i];
@@ -188,10 +188,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     lfo1.shiftPhase(buffer.getNumSamples(), getSampleRate());
     lfo2.shiftPhase(buffer.getNumSamples(), getSampleRate());
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-    timeAccum += duration;
-    times++;
+    measurement.end();
 }
 
 //==============================================================================

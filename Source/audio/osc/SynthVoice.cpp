@@ -59,14 +59,17 @@ namespace audio {
     }
 
     void SynthVoice::prepareToPlay(double sampleRate, int, int) {
+        juce::ADSR::Parameters volumeADSRParams { 0.f, 0.f, 0.f, 0.f};
         volumeADSR.setSampleRate(sampleRate);
         volumeADSR.setParameters(volumeADSRParams);
         volumeADSR.reset();
 
+        juce::ADSR::Parameters ADSR1Params { 0.f, 0.f, 0.f, 0.f};
         ADSR1.setSampleRate(sampleRate);
         ADSR1.setParameters(ADSR1Params);
         ADSR1.reset();
 
+        juce::ADSR::Parameters ADSR2Params { 0.f, 0.f, 0.f, 0.f};
         ADSR2.setSampleRate(sampleRate);
         ADSR2.setParameters(ADSR2Params);
         ADSR2.reset();
@@ -96,11 +99,6 @@ namespace audio {
 
         updatePreviousValues(
             fineValues, phaseValues, detuneValues, gainValues, panValues,
-
-            /*lfo1GainAmpValues,  lfo2GainAmpValues,
-            lfo1PanAmpValues,   lfo2PanAmpValues,
-            lfo1PhaseAmpValues, lfo2PhaseAmpValues,
-            lfo1FineAmpValues,  lfo2FineAmpValues,*/
             lfo1Values, lfo2Values
         );
 
@@ -130,11 +128,6 @@ namespace audio {
 
         lfo1Values.current = lfo1->load();
         lfo2Values.current = lfo2->load();
-
-        /*LOAD_CURRENT_LFO_VALUE(Gain);
-        LOAD_CURRENT_LFO_VALUE(Pan);
-        LOAD_CURRENT_LFO_VALUE(Phase);
-        LOAD_CURRENT_LFO_VALUE(Fine);*/
 
         auto sampleRate = getSampleRate();
 
@@ -210,18 +203,21 @@ namespace audio {
     }
 
     void SynthVoice::updateADSR() {
+        juce::ADSR::Parameters ADSR1Params;
         ADSR1Params.attack = adsr1Params.attack->load() * params::adsr::attackFactor;
         ADSR1Params.decay = adsr1Params.decay->load() * params::adsr::decayFactor;
         ADSR1Params.sustain = adsr1Params.sustain->load() * params::adsr::sustainFactor;
         ADSR1Params.release = adsr1Params.release->load() * params::adsr::releaseFactor;
         ADSR1.setParameters(ADSR1Params);
 
+        juce::ADSR::Parameters ADSR2Params;
         ADSR2Params.attack = adsr2Params.attack->load() * params::adsr::attackFactor;
         ADSR2Params.decay = adsr2Params.decay->load() * params::adsr::decayFactor;
         ADSR2Params.sustain = adsr2Params.sustain->load() * params::adsr::sustainFactor;
         ADSR2Params.release = adsr2Params.release->load() * params::adsr::releaseFactor;
         ADSR2.setParameters(ADSR2Params);
 
+        juce::ADSR::Parameters volumeADSRParams;
         volumeADSRParams.attack = volumeAdsrParams.attack->load() * params::adsr::attackFactor;
         volumeADSRParams.decay = volumeAdsrParams.decay->load() * params::adsr::decayFactor;
         volumeADSRParams.sustain = volumeAdsrParams.sustain->load() * params::adsr::sustainFactor;

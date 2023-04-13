@@ -6,7 +6,7 @@
 #include <juce_dsp.h>
 #include "../../Constants.h"
 #include <cstdarg>
-#include "../../other/HighFrequencyLogger.h"
+#include "../../logging/HighFrequencyLogger.h"
 
 #define LOAD_CURRENT_LFO_VALUE(param_name) \
     lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
@@ -131,13 +131,8 @@ private:
     const juce::String adsr2Id = ADSR_2;
 
     juce::ADSR volumeADSR;
-    juce::ADSR::Parameters volumeADSRParams;
-
     juce::ADSR ADSR1;
-    juce::ADSR::Parameters ADSR1Params;
-
     juce::ADSR ADSR2;
-    juce::ADSR::Parameters ADSR2Params;
 
     OscParams oscParams;
 
@@ -153,7 +148,6 @@ private:
 
     //TODO add common amp lfo value
     const std::atomic<float> *lfo1, *lfo2;
-
 
     int currentWaveTableIndex = -1;
     std::vector<WaveTable> waveTables;
