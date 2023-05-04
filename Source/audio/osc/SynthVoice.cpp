@@ -6,6 +6,7 @@
 #include "SynthSound.h"
 #include <juce_gui_extra.h>
 #include <cmath>
+#include <Tracy.hpp>
 
 namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
@@ -76,6 +77,7 @@ namespace audio {
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
+        ZoneScoped;
         if (oscParams.gain->load() == 0.0f) {
             return;
         }
@@ -135,6 +137,7 @@ namespace audio {
         auto lfo2FineAmpValue = lfo2Amps.fineAmp->load();
 
         for (int i = 0; i < numSamples; ++i) {
+            ZoneNamed(sample_handle, true);
             auto freqLFO1Offset = frequency * lfo1FineAmpValue * getSmoothValue(lfo1Values, numSamples, i);
             auto freqLFO2Offset = frequency * lfo2FineAmpValue * getSmoothValue(lfo2Values, numSamples, i);
             auto freqADSR1Offset = frequency * ADSR1Ptr[i] * adsr1Amps.fineAmp->load();
@@ -194,6 +197,7 @@ namespace audio {
     }
 
     float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable) const {
+        ZoneScoped;
         return oscParams.waveTablePos->load() / 100 * (waveTable.waveTable.size() - 1);
     }
 

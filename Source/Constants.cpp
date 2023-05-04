@@ -43,3 +43,14 @@ namespace params {
         Param<float> amp { "amp", 0.f, 100.f, 20.f };
     }
 }
+
+void* operator new(std::size_t count) {
+    auto ptr = malloc(count);
+    TracyAlloc(ptr, count);
+    return ptr;
+}
+
+void operator delete(void* ptr) noexcept {
+    TracyFree (ptr);
+    free(ptr);
+}

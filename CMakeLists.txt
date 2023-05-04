@@ -27,6 +27,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 #set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 add_subdirectory(JUCE)
+add_subdirectory(tracy)
 
 juce_add_plugin("${PROJECT_NAME}"
         # VERSION ...                               # Set this if the plugin version is different to the project version
@@ -79,15 +80,19 @@ target_sources(${PROJECT_NAME}
         Source/audio/osc/SynthSound.cpp
         Source/audio/wave/WaveTables.cpp
         Source/audio/lfo/LFO.cpp
+
+        tracy/public/TracyClient.cpp
         )
 
 include_directories(SYSTEM JUCE/modules)
+include_directories(SYSTEM tracy/public/tracy/)
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0)
+target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE
             -Wall -Wextra #[[-Werror]] #[[-Wno-old-style-cast]]

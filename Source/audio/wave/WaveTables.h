@@ -4,6 +4,7 @@
 #include "juce_core.h"
 #include "../../other/polymorphic_readonly_array.h"
 #include <cmath>
+#include <Tracy.hpp>
 
 namespace audio {
     class Wave {
@@ -57,6 +58,7 @@ namespace audio {
         }
 
         float generateSample(double frequency, double sampleRate, int waveIndex, float phaseOffsetPercentage) {
+            ZoneScoped;
             return waveTable[waveIndex]->generate((float)frequency, (float)sampleRate, phaseOffset, phaseOffsetPercentage);
         }
 

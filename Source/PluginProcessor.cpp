@@ -14,6 +14,7 @@
 #include "audio/osc/SynthVoice.h"
 #include "audio/osc/SynthSound.h"
 #include "audio/wave/WaveTables.h"
+#include <Tracy.hpp>
 
 //==============================================================================
 SynthAudioProcessor::SynthAudioProcessor()
@@ -163,6 +164,7 @@ bool SynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 
 void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    ZoneScoped;
     buffer.clear();
 
     measurement.start();
@@ -189,6 +191,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     lfo2.shiftPhase(buffer.getNumSamples(), getSampleRate());
 
     measurement.end();
+    FrameMark;
 }
 
 //==============================================================================

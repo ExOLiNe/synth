@@ -7,6 +7,7 @@
 #include "../../Constants.h"
 #include <cstdarg>
 #include "../../logging/HighFrequencyLogger.h"
+#include <Tracy.hpp>
 
 #define LOAD_CURRENT_LFO_VALUE(param_name) \
     lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
@@ -81,6 +82,7 @@ namespace audio {
 
     template<typename T>
     T getSmoothValue(const EffectValues<T>& values, int bufSize, int step) {
+        ZoneScoped;
         jassert(bufSize > 0);
         // if value is the same(floating point errors)
         if (std::abs(values.previous - values.current) <= 0.001f) {
