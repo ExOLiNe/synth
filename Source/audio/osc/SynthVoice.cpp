@@ -21,8 +21,8 @@ namespace audio {
             adsr2Amps(apvts, id, adsr2Id),
             lfo1Amps(apvts, id, lfo1Id),
             lfo2Amps(apvts, id, lfo2Id),
-            lfo1(apvts.getRawParameterValue(lfo1Id)),
-            lfo2(apvts.getRawParameterValue(lfo2Id)),
+            lfo1Atomic(apvts.getRawParameterValue(lfo1Id)),
+            lfo2Atomic(apvts.getRawParameterValue(lfo2Id)),
             currentWaveTableIndex((int)oscParams.waveTableIndex->load()),
             waveTables(WaveTables::getInstance()->copyWaveTables())
                        {
@@ -113,14 +113,6 @@ namespace audio {
 
         WaveTable& currentWaveTable = waveTables[currentWaveTableIndex];
 
-        const float floatWaveTablePos = getFloatWaveTablePos(currentWaveTable);
-        const int upperWaveIndex = (int)std::ceil(floatWaveTablePos);
-        const int lowerWaveIndex = (int)std::floor(floatWaveTablePos);
-
-        // Calculate gain factors of the nearest waves
-        const float upperWaveGainFactor = floatWaveTablePos - (float)lowerWaveIndex;
-        const float lowerWaveGainFactor = 1.0f - upperWaveGainFactor;
-
         fineValues.current = getFine();
         phaseValues.current = oscParams.phase->load();
         detuneValues.current = oscParams.detune->load();
@@ -128,54 +120,59 @@ namespace audio {
         panValues.current = oscParams.pan->load();
         const int voices = (int)oscParams.voices->load();
 
-        lfo1Values.current = lfo1->load();
-        lfo2Values.current = lfo2->load();
+        lfo1Values.current = lfo1Atomic->load();
+        lfo2Values.current = lfo2Atomic->load();
 
         auto sampleRate = getSampleRate();
 
-        auto lfo1FineAmpValue = lfo1Amps.fineAmp->load();
-        auto lfo2FineAmpValue = lfo2Amps.fineAmp->load();
+        logger.log(lfo1Amps.wtPos->load());
 
         for (int i = 0; i < numSamples; ++i) {
             ZoneNamed(sample_handle, true);
-            auto freqLFO1Offset = frequency * lfo1FineAmpValue * getSmoothValue(lfo1Values, numSamples, i);
-            auto freqLFO2Offset = frequency * lfo2FineAmpValue * getSmoothValue(lfo2Values, numSamples, i);
-            auto freqADSR1Offset = frequency * ADSR1Ptr[i] * adsr1Amps.fineAmp->load();
-            auto freqADSR2Offset = frequency * ADSR2Ptr[i] * adsr2Amps.fineAmp->load();
-            const double finalFrequency = frequency * getSmoothValue(fineValues, numSamples, i)
-                                          + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
+
+            auto modulators = ModulatorCalculatedValues {
+                .lfo1 = getSmoothValue(lfo1Values, numSamples, i),
+                .lfo2 = getSmoothValue(lfo2Values, numSamples, i),
+                .adsr1 = ADSR1Ptr[i],
+                .adsr2 = ADSR2Ptr[i]
+            };
+
+            auto morphingWave = getMorphingWave(getFloatWaveTablePos(currentWaveTable, modulators));
+
+            const double finalFrequency = getFrequency(i, numSamples, modulators);
+
             currentWaveTable.shiftPhase();
+
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i)
-                    + sampleRate / finalFrequency * lfo1Amps.phaseAmp->load();
+                    + static_cast<float>(sampleRate / finalFrequency * lfo1Amps.phaseAmp->load());
+
             const float detune = getSmoothValue(detuneValues, numSamples, i);
+
             float output = 0.f;
             for (int voiceIndex = 0; voiceIndex < voices; ++voiceIndex) {
                 const double detuneFactor = std::pow(std::exp(std::log(2) / 1200), detune * ((float)voices / 2 - (float)voiceIndex));
 
                 // Morphing between the nearest waves
                 const float upperOutput = currentWaveTable.generateSample(
-                        finalFrequency * detuneFactor, getSampleRate(), upperWaveIndex, phaseOffset
+                        finalFrequency * detuneFactor, getSampleRate(), morphingWave.top.index, phaseOffset
                 );
                 const float lowerOutput = currentWaveTable.generateSample(
-                        finalFrequency * detuneFactor, getSampleRate(), lowerWaveIndex, phaseOffset
+                        finalFrequency * detuneFactor, getSampleRate(), morphingWave.bottom.index, phaseOffset
                 );
-                output += upperOutput * upperWaveGainFactor + lowerOutput * lowerWaveGainFactor;
+                output += upperOutput * morphingWave.top.volume + lowerOutput * morphingWave.bottom.volume;
             }
             output /= (float)voices;
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
             if (lfo1Amps.gainAmp->load() > 0.0001f) {
-                output *= (1.f + lfo1Amps.gainAmp->load()) * getSmoothValue(lfo1Values, numSamples, i);
+                output *= (1.f + lfo1Amps.gainAmp->load()) * modulators.lfo1;
             }
             if (lfo2Amps.gainAmp->load() > 0.0001f) {
-                output *= (1.f + lfo2Amps.gainAmp->load()) * getSmoothValue(lfo2Values, numSamples, i);
+                output *= (1.f + lfo2Amps.gainAmp->load()) * modulators.lfo2;
             }
-            /*if (id == "osc1" && voiceId == 0) {
-                logger.log(lfo1Values.current);
-            }*/
             const float pan = getSmoothValue(panValues, numSamples, i) +
-                    lfo1Amps.panAmp->load() * getSmoothValue(lfo1Values, numSamples, i);
+                    lfo1Amps.panAmp->load() * modulators.lfo1;
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
@@ -196,12 +193,7 @@ namespace audio {
 #endif
     }
 
-    float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable) const {
-        ZoneScoped;
-        return oscParams.waveTablePos->load() / 100 * (waveTable.waveTable.size() - 1);
-    }
-
-    float SynthVoice::getPanGain(const Channel& channel, float pan) const {
+    float SynthVoice::getPanGain(const Channel& channel, float pan) {
         float direction = channel == Channel::LEFT ? -1.0f : 1.0f;
         return (direction * pan + 1) / 2.0f;
     }
@@ -241,9 +233,46 @@ namespace audio {
         if (currentWaveTableIndex == -1) currentWaveTableIndex = 0;
     }
 
+    float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable, const ModulatorCalculatedValues& modulators) const {
+        ZoneScoped;
+        auto maxPossibleIndex = static_cast<float>(waveTable.waveTable.size() - 1);
+        auto lfo1 = modulators.lfo1 * lfo1Amps.wtPos->load() * maxPossibleIndex;
+        auto lfo2 = modulators.lfo2 * lfo2Amps.wtPos->load() * maxPossibleIndex;
+        auto adsr1 = modulators.adsr1 * adsr1Amps.wtPos->load() * maxPossibleIndex;
+        auto adsr2 = modulators.adsr2 * adsr2Amps.wtPos->load() * maxPossibleIndex;
+        auto waveTablePos =  oscParams.waveTablePos->load() / 100 * maxPossibleIndex +
+            lfo1 + lfo2 + adsr1 + adsr2;
+        if (waveTablePos > maxPossibleIndex) {
+            waveTablePos = maxPossibleIndex;
+        } else if (waveTablePos < 0) {
+            waveTablePos = 0.f;
+        }
+        return waveTablePos;
+    }
+
+    MorphingWave SynthVoice::getMorphingWave(float waveTablePos) {
+        auto upperWaveIndex = static_cast<size_t>(std::ceil(waveTablePos));
+        auto lowerWaveIndex = static_cast<size_t>(std::floor(waveTablePos));
+
+        // Calculate gain factors of the nearest waves
+        const float upperWaveGainFactor = waveTablePos - static_cast<float>(lowerWaveIndex);
+        const float lowerWaveGainFactor = 1.0f - upperWaveGainFactor;
+        return MorphingWave {
+            .bottom { .index = lowerWaveIndex, .volume = lowerWaveGainFactor },
+            .top { .index = upperWaveIndex, .volume = upperWaveGainFactor }
+        };
+    }
+
     float SynthVoice::getFine() const {
         return (float)std::pow(fineFactor, oscParams.fine->load());
     }
 
-    //float SynthVoice::getSmoothValue(const EffectValues& values, int bufSize, int step)
+    double SynthVoice::getFrequency(int i, int numSamples, const ModulatorCalculatedValues& modulators) {
+        auto freqLFO1Offset = frequency * lfo1Amps.fineAmp->load() * modulators.lfo1;
+        auto freqLFO2Offset = frequency * lfo2Amps.fineAmp->load() * modulators.lfo2;
+        auto freqADSR1Offset = frequency * modulators.adsr1 * adsr1Amps.fineAmp->load();
+        auto freqADSR2Offset = frequency * modulators.adsr2 * adsr2Amps.fineAmp->load();
+        return frequency * getSmoothValue(fineValues, numSamples, i)
+                                      + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
+    }
 }

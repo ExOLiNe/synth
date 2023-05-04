@@ -62,12 +62,14 @@ namespace audio {
             gainAmp(apvts.getRawParameterValue(oscId + params::osc::level.name + modulatorId)),
             panAmp(apvts.getRawParameterValue(oscId + params::osc::pan.name + modulatorId)),
             phaseAmp(apvts.getRawParameterValue(oscId + params::osc::phase.name + modulatorId)),
-            fineAmp(apvts.getRawParameterValue(oscId + params::osc::fine.name + modulatorId)) {}
+            fineAmp(apvts.getRawParameterValue(oscId + params::osc::fine.name + modulatorId)),
+            wtPos(apvts.getRawParameterValue(oscId + params::osc::wtPos.name + modulatorId)){}
 
         std::atomic<float>* gainAmp;
         std::atomic<float>* panAmp;
         std::atomic<float>* phaseAmp;
         std::atomic<float>* fineAmp;
+        std::atomic<float>* wtPos;
     };
 
 
@@ -78,6 +80,19 @@ namespace audio {
         void updatePrevious() {
             previous = current;
         }
+    };
+
+    struct MorphingWave {
+        struct Wave {
+            size_t index;
+            float volume;
+        };
+        Wave bottom;
+        Wave top;
+    };
+
+    struct ModulatorCalculatedValues {
+        float lfo1, lfo2, adsr1, adsr2;
     };
 
     template<typename T>
@@ -117,12 +132,14 @@ private:
     void updatePreviousValues(EffectValues<T>&... effectValues) {
         (effectValues.updatePrevious(), ...);
     }
-    float getPanGain(const Channel& channel, float pan) const;
-    float getFloatWaveTablePos(const WaveTable& waveTable) const;
+    float getFloatWaveTablePos(const WaveTable& waveTable, const ModulatorCalculatedValues& modulators) const;
+    double getFrequency(int i, int numSamples, const ModulatorCalculatedValues& modulators);
     void updateSemitone();
     void updateWaveTableIndex();
     float getFine() const;
     void updateADSR();
+    static float getPanGain(const Channel& channel, float pan);
+    static MorphingWave getMorphingWave(float waveTablePos);
 
     const juce::String id;
     [[maybe_unused]]
@@ -149,7 +166,7 @@ private:
     ModulatorParamAmps lfo2Amps;
 
     //TODO add common amp lfo value
-    const std::atomic<float> *lfo1, *lfo2;
+    const std::atomic<float> *lfo1Atomic, *lfo2Atomic;
 
     int currentWaveTableIndex = -1;
     std::vector<WaveTable> waveTables;

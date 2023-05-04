@@ -418,6 +418,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         0.f
                 )
         );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::wtPos.name + LFO_1,
+                        oscId + params::osc::wtPos.name + LFO_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::wtPos.name + LFO_2,
+                        oscId + params::osc::wtPos.name + LFO_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
 
         //ADSR Modulators
 
@@ -491,6 +509,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                 make_unique<Param_f>(
                         oscId + params::osc::fine.name + ADSR_2,
                         oscId + params::osc::fine.name + ADSR_2,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::wtPos.name + ADSR_1,
+                        oscId + params::osc::wtPos.name + ADSR_1,
+                        0.f,
+                        1.f,
+                        0.f
+                )
+        );
+        params.emplace_back(
+                make_unique<Param_f>(
+                        oscId + params::osc::wtPos.name + ADSR_2,
+                        oscId + params::osc::wtPos.name + ADSR_2,
                         0.f,
                         1.f,
                         0.f
@@ -710,15 +746,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                 );
     }
 
-    //TODO remove temporary
-    params.emplace_back(
-            make_unique<Param_f>(
-            "lfo",
-            "lfo",
-            -1.f,
-            1.f,
-            0.f
-            ));
+    for (auto const& param : params) {
+        DBG(param->getParameterID());
+    }
 
     return {params.begin(), params.end()};
 }

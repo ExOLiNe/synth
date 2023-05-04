@@ -60,7 +60,7 @@ public:
         delete[] rawData;
     }
 
-    Parent* operator[](int index) {
+    Parent* operator[](size_t index) {
         return vector[index] ;
     }
 
