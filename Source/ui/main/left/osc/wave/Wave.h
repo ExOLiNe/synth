@@ -136,7 +136,6 @@ public:
     }
 
     void render() override {
-        TracyGpuContext;
         ZoneScoped;
         unsigned int zHighlighted = ((static_cast<unsigned int>(zIndex->load() / 100 * zSize) - 1));
         using namespace ::juce::gl;
@@ -222,8 +221,6 @@ public:
         draw();
 
         GL_CALL(glBindVertexArray(0));
-
-        TracyGpuCollect;
 
         return;
         // Delete the vertex vertexBuffer
