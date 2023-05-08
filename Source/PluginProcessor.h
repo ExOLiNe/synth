@@ -72,7 +72,7 @@ private:
     juce::AudioProcessorValueTreeState treeState;
     juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 
-    Measurement<> measurement;
+    Measurement measurement;
 
     audio::LFO lfo1, lfo2;
 

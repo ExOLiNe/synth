@@ -5,6 +5,8 @@ SDKs
 build
 build-ios
 
+JUCE
+
 cmake-build-debug
 cmake-build-release
 CMakeFiles

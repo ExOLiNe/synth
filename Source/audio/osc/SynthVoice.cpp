@@ -125,7 +125,7 @@ namespace audio {
 
         auto sampleRate = getSampleRate();
 
-        logger.log(lfo1Amps.wtPos->load());
+        //logger.log(lfo1Amps.wtPos->load());
 
         for (int i = 0; i < numSamples; ++i) {
             ZoneNamed(sample_handle, true);

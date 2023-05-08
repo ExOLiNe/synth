@@ -5,10 +5,9 @@
 
 using namespace std::chrono;
 
-template<int durationSeconds = 1>
 class Measurement {
 public:
-    explicit Measurement() {
+    explicit Measurement(milliseconds duration): duration(duration) {
         resetMetrics();
     }
     Measurement(const Measurement&) = delete;
@@ -34,7 +33,7 @@ public:
 
         ++callsBeforeLog;
 
-        if (duration_cast<seconds>(lastTimeCalled - lastTimeLogged).count() > durationSeconds) {
+        if (lastTimeCalled - lastTimeLogged > duration) {
             DBG(averageText + std::to_string(getNanos(averageExecutionTime)));
             DBG(maxText + std::to_string(getNanos(maxExecutionTime)));
             DBG(minText + std::to_string(getNanos(minExecutionTime)));
@@ -51,10 +50,11 @@ public:
         lastTimeLogged = now();
     }
 private:
+    milliseconds duration;
     using Time = time_point<steady_clock>;
-    using Duration = Time::duration;//decltype(std::declval<Time>() - std::declval<Time>());
+    using Duration = Time::duration;
     using Unit = nanoseconds;
-    using CountType = Duration::rep;//decltype(duration_cast<Unit>(std::declval<Duration>()).count());
+    using CountType = Duration::rep;
 
     CountType getNanos(const Duration& duration) {
         return duration_cast<Unit>(duration).count();

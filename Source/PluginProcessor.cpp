@@ -28,7 +28,8 @@ SynthAudioProcessor::SynthAudioProcessor()
 #endif
 ), treeState(*this, nullptr, "Params", createLayout()),
 lfo1(treeState.getRawParameterValue(LFO_1), treeState.getRawParameterValue(juce::String(LFO_1) + params::lfo::freq.name)),
-lfo2(treeState.getRawParameterValue(LFO_2), treeState.getRawParameterValue(juce::String(LFO_2) + params::lfo::freq.name))
+lfo2(treeState.getRawParameterValue(LFO_2), treeState.getRawParameterValue(juce::String(LFO_2) + params::lfo::freq.name)),
+measurement(1s)
 #endif
 {
     oscOutputBuffers.resize(oscIds.size());
