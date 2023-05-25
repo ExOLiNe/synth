@@ -6,7 +6,10 @@
 #include "SynthSound.h"
 #include <juce_gui_extra.h>
 #include <cmath>
+
+#ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
+#endif
 
 namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
@@ -24,9 +27,11 @@ namespace audio {
             lfo1Atomic(apvts.getRawParameterValue(lfo1Id)),
             lfo2Atomic(apvts.getRawParameterValue(lfo2Id)),
             currentWaveTableIndex((int)oscParams.waveTableIndex->load()),
-            waveTables(WaveTables::getInstance()->copyWaveTables())
+            waveTables(WaveTables::getInstance()->copyWaveTables()),
+            filterAParams(apvts, "A"),
+            filterBParams(apvts, "B")
                        {
-
+                           filterA.setMode(juce::dsp::LadderFilterMode::LPF24);
     }
 
     bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound) {
@@ -77,7 +82,9 @@ namespace audio {
     }
 
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
+#ifdef PROFILING_ENABLED
         ZoneScoped;
+#endif
         if (oscParams.gain->load() == 0.0f) {
             return;
         }
@@ -126,6 +133,13 @@ namespace audio {
         auto sampleRate = getSampleRate();
 
         //logger.log(lfo1Amps.wtPos->load());
+        filterA.setCutoffFrequencyHz(filterAParams.filterFreq->load());
+        filterA.setResonance(filterAParams.filterReso->load() / 100.f);
+        filterA.setDrive(1.f);
+
+        //logger.log(filterAParams.filterFreq->load());
+        logger.log(filterAParams.filterFreq->load());
+
 
         for (int i = 0; i < numSamples; ++i) {
             ZoneNamed(sample_handle, true);
@@ -176,6 +190,10 @@ namespace audio {
             voicePtrL[i] += output * getPanGain(Channel::LEFT, pan);
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
+
+        auto currentVoiceBlock = juce::dsp::AudioBlock<float>(currentVoiceBuffer);
+
+        filterA.process(juce::dsp::ProcessContextReplacing<float> { currentVoiceBlock });
 
         volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 
@@ -234,7 +252,9 @@ namespace audio {
     }
 
     float SynthVoice::getFloatWaveTablePos(const WaveTable& waveTable, const ModulatorCalculatedValues& modulators) const {
+#ifdef PROFILING_ENABLED
         ZoneScoped;
+#endif
         auto maxPossibleIndex = static_cast<float>(waveTable.waveTable.size() - 1);
         auto lfo1 = modulators.lfo1 * lfo1Amps.wtPos->load() * maxPossibleIndex;
         auto lfo2 = modulators.lfo2 * lfo2Amps.wtPos->load() * maxPossibleIndex;

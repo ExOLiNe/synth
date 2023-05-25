@@ -13,23 +13,18 @@
     lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
     lfo2##param_name##AmpValues.current = lfo2##param_name##Amp->load()
 
-/*#define LOAD_CURRENT_VALUES(...) \
-    int params[] = { __VA_ARGS__ }; \
-    int numfos = sizeof(params); \
-    static_assert(false, numfos);*/
-
 namespace audio {
     struct OscParams {
         OscParams(const juce::AudioProcessorValueTreeState& apvts, const juce::String& id):
-                waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
-                waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
-                gain(apvts.getRawParameterValue(id + params::osc::level.name)),
-                pan(apvts.getRawParameterValue(id + params::osc::pan.name)),
-                voices(apvts.getRawParameterValue(id + params::osc::voices.name)),
-                detune(apvts.getRawParameterValue(id + params::osc::detune.name)),
-                phase(apvts.getRawParameterValue(id + params::osc::phase.name)),
-                semitone(apvts.getRawParameterValue(id + params::osc::semitone.name)),
-                fine(apvts.getRawParameterValue(id + params::osc::fine.name)) {}
+            waveTableIndex(apvts.getRawParameterValue(id + params::osc::waveTableTypeName)),
+            waveTablePos(apvts.getRawParameterValue(id + params::osc::wtPos.name)),
+            gain(apvts.getRawParameterValue(id + params::osc::level.name)),
+            pan(apvts.getRawParameterValue(id + params::osc::pan.name)),
+            voices(apvts.getRawParameterValue(id + params::osc::voices.name)),
+            detune(apvts.getRawParameterValue(id + params::osc::detune.name)),
+            phase(apvts.getRawParameterValue(id + params::osc::phase.name)),
+            semitone(apvts.getRawParameterValue(id + params::osc::semitone.name)),
+            fine(apvts.getRawParameterValue(id + params::osc::fine.name)) {}
 
         std::atomic<float>* waveTableIndex;
         std::atomic<float>* waveTablePos;
@@ -42,12 +37,25 @@ namespace audio {
         std::atomic<float>* fine;
     };
 
+    struct FilterParams {
+        FilterParams(const juce::AudioProcessorValueTreeState& apvts, const juce::String& id):
+            filterFreq(apvts.getRawParameterValue(juce::String("filter") + id + params::filter::freq.name)),
+            filterReso(apvts.getRawParameterValue(juce::String("filter") + id + params::filter::reso.name)),
+            filterEnabled(apvts.getRawParameterValue(juce::String("filter") + id + params::filter::enabled.name)) {
+                juce::Logger::writeToLog("ID");
+                juce::Logger::writeToLog(juce::String("filter") + id + params::filter::freq.name);
+        }
+        std::atomic<float>* filterFreq;
+        std::atomic<float>* filterReso;
+        std::atomic<float>* filterEnabled;
+    };
+
     struct ADSRParams {
         ADSRParams(const juce::AudioProcessorValueTreeState& apvts, const juce::String& adsrName):
-                attack(apvts.getRawParameterValue(adsrName + params::adsr::attack.name)),
-                decay(apvts.getRawParameterValue(adsrName + params::adsr::decay.name)),
-                sustain(apvts.getRawParameterValue(adsrName + params::adsr::sustain.name)),
-                release(apvts.getRawParameterValue(adsrName + params::adsr::release.name))
+            attack(apvts.getRawParameterValue(adsrName + params::adsr::attack.name)),
+            decay(apvts.getRawParameterValue(adsrName + params::adsr::decay.name)),
+            sustain(apvts.getRawParameterValue(adsrName + params::adsr::sustain.name)),
+            release(apvts.getRawParameterValue(adsrName + params::adsr::release.name))
         {
 
         }
@@ -97,7 +105,9 @@ namespace audio {
 
     template<typename T>
     T getSmoothValue(const EffectValues<T>& values, int bufSize, int step) {
+#ifdef PROFILING_ENABLED
         ZoneScoped;
+#endif
         jassert(bufSize > 0);
         // if value is the same(floating point errors)
         if (std::abs(values.previous - values.current) <= 0.001f) {
@@ -183,6 +193,9 @@ private:
     juce::AudioBuffer<float> currentVoiceBuffer;
     juce::AudioBuffer<float> ADSR1Buffer;
     juce::AudioBuffer<float> ADSR2Buffer;
+
+    FilterParams filterAParams, filterBParams;
+    juce::dsp::LadderFilter<float> filterA, filterB;
 
     HighFrequencyLogger logger;
 };

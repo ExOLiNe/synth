@@ -58,7 +58,9 @@ namespace audio {
         }
 
         float generateSample(double frequency, double sampleRate, size_t waveIndex, float phaseOffsetPercentage) {
+#ifdef PROFILING_ENABLED
             ZoneScoped;
+#endif
             return waveTable[waveIndex]->generate((float)frequency, (float)sampleRate, phaseOffset, phaseOffsetPercentage);
         }
 

@@ -136,7 +136,9 @@ public:
     }
 
     void render() override {
+#ifdef PROFILING_ENABLED
         ZoneScoped;
+#endif
         unsigned int zHighlighted = ((static_cast<unsigned int>(zIndex->load() / 100 * zSize) - 1));
         using namespace ::juce::gl;
 

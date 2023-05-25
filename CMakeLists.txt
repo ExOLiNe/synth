@@ -109,6 +109,7 @@ include_directories(Source/juce)
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         juce::juce_core
+        juce::juce_dsp
         juce::juce_gui_extra
         juce::juce_graphics
         juce::juce_opengl

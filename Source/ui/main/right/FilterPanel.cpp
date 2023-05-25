@@ -82,6 +82,8 @@ namespace ui {
                 Track(Fr(1)),
                 Track(Fr(1)),
                 Track(Fr(1)),
+                Track(Fr(1)),
+                Track(Fr(1)),
                 Track(Fr(1))
         };
         grid.items = {
@@ -89,7 +91,9 @@ namespace ui {
                 GridItem(frequency),
                 GridItem(resonanceLabel),
                 GridItem(resonance),
-                GridItem(enabled).withWidth(100.0f).withHeight(100.0f)
+                GridItem(mixLabel),
+                GridItem(mix),
+                GridItem(enabled).withWidth(50.0f).withHeight(50.0f)
         };
         grid.performLayout(getLocalBounds());
     }

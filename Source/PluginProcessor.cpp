@@ -14,7 +14,10 @@
 #include "audio/osc/SynthVoice.h"
 #include "audio/osc/SynthSound.h"
 #include "audio/wave/WaveTables.h"
+
+#ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
+#endif
 
 //==============================================================================
 SynthAudioProcessor::SynthAudioProcessor()
@@ -163,12 +166,13 @@ bool SynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
-{
+void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
+#ifdef PROFILING_ENABLED
     ZoneScoped;
+#endif
     buffer.clear();
 
-    measurement.start();
+    //measurement.start();
 
     for (int i = 0; i < oscillators.size(); ++i) {
         juce::AudioBuffer<float>& oscOutputBuffer = oscOutputBuffers[i];
@@ -191,8 +195,10 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     lfo1.shiftPhase(buffer.getNumSamples(), getSampleRate());
     lfo2.shiftPhase(buffer.getNumSamples(), getSampleRate());
 
-    measurement.end();
+    //measurement.end();
+#ifdef PROFILING_ENABLED
     FrameMark;
+#endif
 }
 
 //==============================================================================

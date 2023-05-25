@@ -21,7 +21,7 @@ namespace params {
     }
 
     namespace filter {
-        Param<float> freq { "freq", 20.f, 16000.f, 800.f };
+        Param<float> freq { "freq", 0.001f, 100.f, 100.f };
         Param<float> reso { "reso", 0.f, 100.f, 0.f };
         BoolParam enabled { "enabled", false };
     }
