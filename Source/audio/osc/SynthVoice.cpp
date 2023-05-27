@@ -28,10 +28,9 @@ namespace audio {
             lfo2Atomic(apvts.getRawParameterValue(lfo2Id)),
             currentWaveTableIndex((int)oscParams.waveTableIndex->load()),
             waveTables(WaveTables::getInstance()->copyWaveTables()),
-            filterAParams(apvts, "A"),
-            filterBParams(apvts, "B")
+            filterParams(apvts, id == OSC1 ? "A" : "B")
                        {
-                           filterA.setMode(juce::dsp::LadderFilterMode::LPF24);
+                           filter.setMode(juce::dsp::LadderFilterMode::LPF24);
     }
 
     bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound) {
@@ -81,6 +80,16 @@ namespace audio {
         ADSR2.reset();
     }
 
+    void SynthVoice::updateFilter() {
+        auto filterFreq = filterParams.filterFreq->load();
+        filterParams.filterFreq->load()
+            * lfo1Amps.filterFreqAmp->load()
+            * lfo1Values.current;
+        filter.setCutoffFrequencyHz(filterParams.filterFreq->load());
+        filter.setResonance(filterParams.filterReso->load() / 100.f);
+        filter.setDrive(1.f);
+    }
+
     void SynthVoice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
 #ifdef PROFILING_ENABLED
         ZoneScoped;
@@ -111,9 +120,13 @@ namespace audio {
             lfo1Values, lfo2Values
         );
 
+        lfo1Values.current = lfo1Atomic->load();
+        lfo2Values.current = lfo2Atomic->load();
+
         updateADSR();
         updateSemitone();
         updateWaveTableIndex();
+        updateFilter();
 
         auto voicePtrL = currentVoiceBuffer.getWritePointer(Channel::LEFT);
         auto voicePtrR = currentVoiceBuffer.getWritePointer(Channel::RIGHT);
@@ -127,22 +140,13 @@ namespace audio {
         panValues.current = oscParams.pan->load();
         const int voices = (int)oscParams.voices->load();
 
-        lfo1Values.current = lfo1Atomic->load();
-        lfo2Values.current = lfo2Atomic->load();
 
         auto sampleRate = getSampleRate();
 
-        //logger.log(lfo1Amps.wtPos->load());
-        filterA.setCutoffFrequencyHz(filterAParams.filterFreq->load());
-        filterA.setResonance(filterAParams.filterReso->load() / 100.f);
-        filterA.setDrive(1.f);
-
-        //logger.log(filterAParams.filterFreq->load());
-        logger.log(filterAParams.filterFreq->load());
-
-
         for (int i = 0; i < numSamples; ++i) {
+#ifdef PROFILING_ENABLED
             ZoneNamed(sample_handle, true);
+#endif
 
             auto modulators = ModulatorCalculatedValues {
                 .lfo1 = getSmoothValue(lfo1Values, numSamples, i),
@@ -193,7 +197,7 @@ namespace audio {
 
         auto currentVoiceBlock = juce::dsp::AudioBlock<float>(currentVoiceBuffer);
 
-        filterA.process(juce::dsp::ProcessContextReplacing<float> { currentVoiceBlock });
+        filter.process(juce::dsp::ProcessContextReplacing<float> { currentVoiceBlock });
 
         volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 

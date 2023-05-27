@@ -352,194 +352,63 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         )
                 );
 
-        // LFO Modulators
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::level.name + LFO_1,
-                        oscId + params::osc::level.name + LFO_1,
-                        0.f,
-                        1.f,
-                        0.f
-                        )
-                );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::level.name + LFO_2,
-                        oscId + params::osc::level.name + LFO_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::pan.name + LFO_1,
-                        oscId + params::osc::pan.name + LFO_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::pan.name + LFO_2,
-                        oscId + params::osc::pan.name + LFO_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::phase.name + LFO_1,
-                        oscId + params::osc::phase.name + LFO_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::phase.name + LFO_2,
-                        oscId + params::osc::phase.name + LFO_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::fine.name + LFO_1,
-                        oscId + params::osc::fine.name + LFO_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::fine.name + LFO_2,
-                        oscId + params::osc::fine.name + LFO_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::wtPos.name + LFO_1,
-                        oscId + params::osc::wtPos.name + LFO_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::wtPos.name + LFO_2,
-                        oscId + params::osc::wtPos.name + LFO_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-
-        //ADSR Modulators
-
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::level.name + ADSR_1,
-                        oscId + params::osc::level.name + ADSR_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::level.name + ADSR_2,
-                        oscId + params::osc::level.name + ADSR_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::pan.name + ADSR_1,
-                        oscId + params::osc::pan.name + ADSR_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::pan.name + ADSR_2,
-                        oscId + params::osc::pan.name + ADSR_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::phase.name + ADSR_1,
-                        oscId + params::osc::phase.name + ADSR_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::phase.name + ADSR_2,
-                        oscId + params::osc::phase.name + ADSR_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::fine.name + ADSR_1,
-                        oscId + params::osc::fine.name + ADSR_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::fine.name + ADSR_2,
-                        oscId + params::osc::fine.name + ADSR_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::wtPos.name + ADSR_1,
-                        oscId + params::osc::wtPos.name + ADSR_1,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-        params.emplace_back(
-                make_unique<Param_f>(
-                        oscId + params::osc::wtPos.name + ADSR_2,
-                        oscId + params::osc::wtPos.name + ADSR_2,
-                        0.f,
-                        1.f,
-                        0.f
-                )
-        );
-
+        // Modulators
+        for (const auto modulatorId : std::array { LFO_1, LFO_2, ADSR_1, ADSR_2 }) {
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + params::osc::level.name + modulatorId,
+                            oscId + params::osc::level.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + params::osc::pan.name + modulatorId,
+                            oscId + params::osc::pan.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + params::osc::phase.name + modulatorId,
+                            oscId + params::osc::phase.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + params::osc::fine.name + modulatorId,
+                            oscId + params::osc::fine.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + params::osc::wtPos.name + modulatorId,
+                            oscId + params::osc::wtPos.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            oscId + filter::freq.name + modulatorId,
+                            oscId + filter::freq.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+        }
     }
 
     vector<string> fms = { FM_A, FM_B };
@@ -610,6 +479,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                         filter::enabled.defaultValue
                 )
         );
+
+        for (const auto modulatorId : std::array {ADSR_1, ADSR_2, LFO_1, LFO_2 }) {
+            params.emplace_back(
+                    make_unique<Param_f>(
+                            filterId + params::filter::freq.name + modulatorId,
+                            filterId + params::filter::freq.name + modulatorId,
+                            0.f,
+                            1.f,
+                            0.f
+                    )
+            );
+        }
     }
 
     vector<string> adsrs = { ADSR_1, ADSR_2 };

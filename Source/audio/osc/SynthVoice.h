@@ -71,13 +71,15 @@ namespace audio {
             panAmp(apvts.getRawParameterValue(oscId + params::osc::pan.name + modulatorId)),
             phaseAmp(apvts.getRawParameterValue(oscId + params::osc::phase.name + modulatorId)),
             fineAmp(apvts.getRawParameterValue(oscId + params::osc::fine.name + modulatorId)),
-            wtPos(apvts.getRawParameterValue(oscId + params::osc::wtPos.name + modulatorId)){}
+            wtPos(apvts.getRawParameterValue(oscId + params::osc::wtPos.name + modulatorId)),
+            filterFreqAmp(apvts.getRawParameterValue(oscId + params::filter::freq.name + modulatorId)){}
 
         std::atomic<float>* gainAmp;
         std::atomic<float>* panAmp;
         std::atomic<float>* phaseAmp;
         std::atomic<float>* fineAmp;
         std::atomic<float>* wtPos;
+        std::atomic<float>* filterFreqAmp;
     };
 
 
@@ -142,6 +144,7 @@ private:
     void updatePreviousValues(EffectValues<T>&... effectValues) {
         (effectValues.updatePrevious(), ...);
     }
+    void updateFilter();
     float getFloatWaveTablePos(const WaveTable& waveTable, const ModulatorCalculatedValues& modulators) const;
     double getFrequency(int i, int numSamples, const ModulatorCalculatedValues& modulators);
     void updateSemitone();
@@ -194,8 +197,8 @@ private:
     juce::AudioBuffer<float> ADSR1Buffer;
     juce::AudioBuffer<float> ADSR2Buffer;
 
-    FilterParams filterAParams, filterBParams;
-    juce::dsp::LadderFilter<float> filterA, filterB;
+    FilterParams filterParams;
+    juce::dsp::LadderFilter<float> filter;
 
     HighFrequencyLogger logger;
 };
