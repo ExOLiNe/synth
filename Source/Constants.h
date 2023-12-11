@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
+
+#ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
+#endif
 
 #define TOP_MENU_TOPIC "top_menu.panel"
 #define MAIN_PANEL TOP_MENU_TOPIC".main"
@@ -92,7 +95,8 @@ namespace params {
     }
 }
 
-
+#ifdef PROFILING_ENABLED
 void* operator new(std::size_t count);
 
 void operator delete(void* ptr) noexcept;
+#endif

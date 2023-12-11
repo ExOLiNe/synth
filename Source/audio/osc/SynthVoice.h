@@ -7,7 +7,9 @@
 #include "../../Constants.h"
 #include <cstdarg>
 #include "../../logging/HighFrequencyLogger.h"
+#ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
+#endif
 
 #define LOAD_CURRENT_LFO_VALUE(param_name) \
     lfo1##param_name##AmpValues.current = lfo1##param_name##Amp->load(); \
@@ -72,7 +74,7 @@ namespace audio {
             phaseAmp(apvts.getRawParameterValue(oscId + params::osc::phase.name + modulatorId)),
             fineAmp(apvts.getRawParameterValue(oscId + params::osc::fine.name + modulatorId)),
             wtPos(apvts.getRawParameterValue(oscId + params::osc::wtPos.name + modulatorId)),
-            filterFreqAmp(apvts.getRawParameterValue(oscId + params::filter::freq.name + modulatorId)){}
+            filterFreqAmp(apvts.getRawParameterValue("filter" + oscId + params::filter::freq.name + modulatorId)){}
 
         std::atomic<float>* gainAmp;
         std::atomic<float>* panAmp;
@@ -187,7 +189,11 @@ private:
     int midiNote;
     int previousSemitoneOffset = 0;
 
-    EffectValues<float> fineValues {}, phaseValues {}, detuneValues {}, gainValues {}, panValues {};
+    EffectValues<float> fineValues {1.f, 1.f};
+    EffectValues<float> phaseValues {0.f, 0.f};
+    EffectValues<float> detuneValues {0.f, 0.f};
+    EffectValues<float> gainValues {1.f, 1.f};
+    EffectValues<float> panValues {1.f, 1.f};
 
     EffectValues<float> lfo1Values, lfo2Values;
 
@@ -200,7 +206,7 @@ private:
     FilterParams filterParams;
     juce::dsp::LadderFilter<float> filter;
 
-    HighFrequencyLogger logger;
+    HighFrequencyLogger<> logger;
 };
 
 }

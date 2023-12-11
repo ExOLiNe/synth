@@ -447,7 +447,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
     }
 
     vector<string> filters = { FILTER_A, FILTER_B };
-    for (auto const &filterId : filters) {
+    for (auto const &osc : oscillators) {
+        auto filterId = "filter" + osc;
 
         string freq = filterId + filter::freq.name;
         string reso = filterId + filter::reso.name;
@@ -480,7 +481,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthAudioProcessor::createL
                 )
         );
 
-        for (const auto modulatorId : std::array {ADSR_1, ADSR_2, LFO_1, LFO_2 }) {
+        for (const auto modulatorId : std::array { ADSR_1, ADSR_2, LFO_1, LFO_2 }) {
             params.emplace_back(
                     make_unique<Param_f>(
                             filterId + params::filter::freq.name + modulatorId,

@@ -116,7 +116,7 @@ namespace ui {
 
 
     FilterControlsHolder::FilterControlsHolder(juce::AudioProcessorValueTreeState& treeState) :
-    controlsA(treeState, FILTER_A), controlsB(treeState, FILTER_B) {
+    controlsA(treeState, juce::String("filter") + OSC1), controlsB(treeState, juce::String("filter") + OSC2) {
         addAndMakeVisible(controlsA);
         addChildComponent(controlsB);
     }

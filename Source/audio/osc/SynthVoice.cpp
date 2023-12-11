@@ -11,6 +11,8 @@
 #include <Tracy.hpp>
 #endif
 
+#define ASSERT_NAN(value) jassert(!::isnan(value))
+
 namespace audio {
     double fineFactor = std::pow(4.0, 1.0 / params::osc::fine.maxValue);
 
@@ -28,7 +30,7 @@ namespace audio {
             lfo2Atomic(apvts.getRawParameterValue(lfo2Id)),
             currentWaveTableIndex((int)oscParams.waveTableIndex->load()),
             waveTables(WaveTables::getInstance()->copyWaveTables()),
-            filterParams(apvts, id == OSC1 ? "A" : "B")
+            filterParams(apvts, id)
                        {
                            filter.setMode(juce::dsp::LadderFilterMode::LPF24);
     }
@@ -81,11 +83,15 @@ namespace audio {
     }
 
     void SynthVoice::updateFilter() {
+        auto adsr1 = ADSR1Buffer.getReadPointer(0);
+        auto adsr2 = ADSR2Buffer.getReadPointer(0);
         auto filterFreq = filterParams.filterFreq->load();
-        filterParams.filterFreq->load()
-            * lfo1Amps.filterFreqAmp->load()
-            * lfo1Values.current;
-        filter.setCutoffFrequencyHz(filterParams.filterFreq->load());
+        auto finalFreq = filterFreq
+                + filterFreq * lfo1Amps.filterFreqAmp->load() * lfo1Values.current
+                + filterFreq * lfo2Amps.filterFreqAmp->load() * lfo2Values.current;
+                + filterFreq * adsr1Amps.filterFreqAmp->load() * adsr1[0]
+                + filterFreq * adsr2Amps.filterFreqAmp->load() * adsr2[0];
+        filter.setCutoffFrequencyHz(finalFreq);
         filter.setResonance(filterParams.filterReso->load() / 100.f);
         filter.setDrive(1.f);
     }
@@ -94,7 +100,7 @@ namespace audio {
 #ifdef PROFILING_ENABLED
         ZoneScoped;
 #endif
-        if (oscParams.gain->load() == 0.0f) {
+        if (oscParams.gain->load() == 0.0f || frequency == 0.0) {
             return;
         }
 
@@ -159,10 +165,18 @@ namespace audio {
 
             const double finalFrequency = getFrequency(i, numSamples, modulators);
 
+            jassert(finalFrequency != 0);
+
+            ASSERT_NAN(finalFrequency);
+
             currentWaveTable.shiftPhase();
 
             const float phaseOffset = getSmoothValue(phaseValues, numSamples, i)
                     + static_cast<float>(sampleRate / finalFrequency * lfo1Amps.phaseAmp->load());
+
+            ASSERT_NAN(getSmoothValue(phaseValues, numSamples, i));
+
+            ASSERT_NAN(phaseOffset);
 
             const float detune = getSmoothValue(detuneValues, numSamples, i);
 
@@ -174,12 +188,17 @@ namespace audio {
                 const float upperOutput = currentWaveTable.generateSample(
                         finalFrequency * detuneFactor, getSampleRate(), morphingWave.top.index, phaseOffset
                 );
+                ASSERT_NAN(upperOutput);
                 const float lowerOutput = currentWaveTable.generateSample(
                         finalFrequency * detuneFactor, getSampleRate(), morphingWave.bottom.index, phaseOffset
                 );
+                ASSERT_NAN(lowerOutput);
                 output += upperOutput * morphingWave.top.volume + lowerOutput * morphingWave.bottom.volume;
+                ASSERT_NAN(output);
             }
             output /= (float)voices;
+
+            ASSERT_NAN(output);
 
             // gain & pan
             output *= 0.4f * (getSmoothValue(gainValues, numSamples, i) / 100.0f);
@@ -195,9 +214,11 @@ namespace audio {
             voicePtrR[i] += output * getPanGain(Channel::RIGHT, pan);
         }
 
-        auto currentVoiceBlock = juce::dsp::AudioBlock<float>(currentVoiceBuffer);
+        juce::dsp::AudioBlock<float> currentVoiceBlock(currentVoiceBuffer);
 
-        filter.process(juce::dsp::ProcessContextReplacing<float> { currentVoiceBlock });
+        auto contextReplacing = juce::dsp::ProcessContextReplacing<float> { currentVoiceBlock };
+
+        filter.process(contextReplacing);
 
         volumeADSR.applyEnvelopeToBuffer(currentVoiceBuffer, 0, numSamples);
 
@@ -296,6 +317,12 @@ namespace audio {
         auto freqLFO2Offset = frequency * lfo2Amps.fineAmp->load() * modulators.lfo2;
         auto freqADSR1Offset = frequency * modulators.adsr1 * adsr1Amps.fineAmp->load();
         auto freqADSR2Offset = frequency * modulators.adsr2 * adsr2Amps.fineAmp->load();
+        ASSERT_NAN(getSmoothValue(fineValues, numSamples, i));
+        ASSERT_NAN(freqLFO1Offset);
+        ASSERT_NAN(freqLFO2Offset);
+        ASSERT_NAN(freqADSR1Offset);
+        ASSERT_NAN(freqADSR2Offset);
+        // TODO: bug getSmoothValue is ZERO!
         return frequency * getSmoothValue(fineValues, numSamples, i)
                                       + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
     }

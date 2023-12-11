@@ -5,7 +5,7 @@ namespace params {
     namespace osc {
         Str waveTableTypeName = "waveTableType";
         Param<unsigned int> voices {"voices", 1, 12, 1};
-        Param<float> detune {"detune", 0.f, (float)TOTAL_DETUNE_VOICES, 0.f };
+        Param<float> detune {"detune", 0.f, static_cast<float>(TOTAL_DETUNE_VOICES), 0.f };
         Param<unsigned int> phase { "phase", 0, 100, 0 };
         Param<float> wtPos { "wtPos", 0.f, 100.0f, 50.0f };
         Param<float> pan { "pan", -1.0f, 1.0f, 0 };
@@ -44,6 +44,7 @@ namespace params {
     }
 }
 
+#ifdef PROFILING_ENABLED
 void* operator new(std::size_t count) {
     auto ptr = malloc(count);
     TracyAlloc(ptr, count);
@@ -54,3 +55,4 @@ void operator delete(void* ptr) noexcept {
     TracyFree (ptr);
     free(ptr);
 }
+#endif

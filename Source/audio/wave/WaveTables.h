@@ -4,7 +4,10 @@
 #include "juce_core.h"
 #include "../../other/polymorphic_readonly_array.h"
 #include <cmath>
+
+#ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
+#endif
 
 namespace audio {
     class Wave {

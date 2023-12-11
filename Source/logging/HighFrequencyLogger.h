@@ -4,10 +4,15 @@
 #include "juce_core.h"
 
 using namespace std::chrono;
+
+static auto& defaultLogger = std::cout;
+
+template<typename LoggerType = decltype(defaultLogger)>
 class HighFrequencyLogger {
 public:
     using T = double;
-    explicit HighFrequencyLogger(int durationMillis = 1000) : durationMillis(durationMillis) {
+    explicit HighFrequencyLogger(int durationMillis = 1000, LoggerType logger = defaultLogger)
+    : durationMillis(durationMillis), logger(logger) {
         resetMetrics();
     }
     HighFrequencyLogger(const HighFrequencyLogger&) = delete;
@@ -28,9 +33,9 @@ public:
         ++callsBeforeLog;
 
         if (duration_cast<milliseconds>(lastTimeCalled - lastTimeLogged).count() > durationMillis) {
-            DBG(averageText + std::to_string(averageValue));
-            DBG(maxText + std::to_string(maxValue));
-            DBG(minText + std::to_string(minValue));
+            logger << averageText + std::to_string(averageValue) << "\n";
+            logger << maxText + std::to_string(maxValue) << "\n";
+            logger << minText + std::to_string(minValue) << "\n";
             resetMetrics();
         }
     }
@@ -54,4 +59,5 @@ private:
     T minValue;
     T averageValue;
     long callsBeforeLog = 0;
+    LoggerType& logger;
 };
