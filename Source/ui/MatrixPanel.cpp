@@ -139,14 +139,12 @@ namespace ui {
             );
             rowElement->attachment = std::move(attachment);
             rowElement->parameterID = rowElement->getParameterID();
-            DBG("Bound parameter " + rowElement->getParameterID());
         } else if (comboBoxThatHasChanged->getSelectedItemIndex() <= 0) {
             rowElement->attachment.reset();
             auto valuePtr = apvts.getRawParameterValue(rowElement->parameterID);
             if (valuePtr != nullptr) {
                 valuePtr->store(0.f);
             }
-            DBG("Unbound parameter " + rowElement->parameterID);
         }
     }
 

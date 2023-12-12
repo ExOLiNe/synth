@@ -322,7 +322,6 @@ namespace audio {
         ASSERT_NAN(freqLFO2Offset);
         ASSERT_NAN(freqADSR1Offset);
         ASSERT_NAN(freqADSR2Offset);
-        // TODO: bug getSmoothValue is ZERO!
         return frequency * getSmoothValue(fineValues, numSamples, i)
                                       + freqLFO1Offset + freqLFO2Offset + freqADSR1Offset + freqADSR2Offset;
     }

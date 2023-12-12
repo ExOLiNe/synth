@@ -1,3 +1,5 @@
-//
-// Created by Aleksandr on 12-Dec-23.
-//
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("Test synth") {
+
+}
