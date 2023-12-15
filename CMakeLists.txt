@@ -29,6 +29,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 add_subdirectory(JUCE)
 add_subdirectory(tracy)
 
+add_subdirectory(JUCE/extras/AudioPluginHost)
+add_subdirectory(MidiGenerator)
+
 juce_add_plugin("${PROJECT_NAME}"
         # VERSION ...                               # Set this if the plugin version is different to the project version
         # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone

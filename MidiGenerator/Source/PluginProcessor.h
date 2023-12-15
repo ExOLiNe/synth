@@ -8,26 +8,26 @@
 
 #pragma once
 
-#include "audio/Engine.h"
+#include "juce_audio_processors/juce_audio_processors.h"
+#include <chrono>
+#include <random>
+//#include "Arpeggiator.h"
+//#include "juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
 
-#include <juce_audio_processors.h>
-#include "Constants.h"
-#include "audio/wave/WaveTables.h"
-#include "audio/lfo/LFO.h"
-#include "logging/Measurement.h"
+using namespace std::chrono;
 
 //==============================================================================
 /**
 */
-class SynthAudioProcessor  : public juce::AudioProcessor
+class MidiGeneratorProcessor  : public juce::AudioProcessor
 #if JucePlugin_Enable_ARA
     , public juce::AudioProcessorARAExtension
 #endif
 {
 public:
     //==============================================================================
-    SynthAudioProcessor();
-    ~SynthAudioProcessor() override;
+    MidiGeneratorProcessor();
+    ~MidiGeneratorProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -61,15 +61,24 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    juce::AudioProcessorValueTreeState& getTreeState();
-    const std::vector<juce::String>& getParamNamesAbleToModulate() const;
-    const std::vector<juce::String>& getModulatorNames() const;
 private:
-    Measurement measurement;
-    audio::Engine<> engine;
-
-    long long timeAccum = 0;
-    long times = 0;
+    void playMidi(juce::MidiBuffer& midiMessages);
+    using note_type = unsigned int;
+/*  using arpeggiator_type = Arpeggiator<note_type>;
+    arpeggiator_type arpeggiator;
+    static constexpr unsigned int maxNotesInArpeggio = 4;
+    unsigned int notesInArpeggioPlayed = 0;
+    static constexpr unsigned int scaleLen = arpeggiator_type::notesLen;
+    static std::array<note_type, scaleLen> scale;
+    std::unique_ptr<arpeggiator_type::Iterator> arpeggioIterator;
+    int getScaleNote(note_type randomInt);
+    */
+    time_point<high_resolution_clock> lastMidiNoteTime = high_resolution_clock::now();
+    note_type lastMidiNote = 1;
+    long long counter = 0L;
+    int times = 0;
+    int currentChordIndex = 0;
+    std::array<int, 3> chordProgression = {0, 5, 7};
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiGeneratorProcessor)
 };

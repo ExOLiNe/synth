@@ -1,14 +1,11 @@
-project(UnitTestRunner VERSION 1.0)
-
-#set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
-#include(CTest)
+set(PROJECT_NAME MidiGeneratorUnitTestRunner)
+project(${PROJECT_NAME} VERSION 1.0)
 
 find_package(catch2 REQUIRED)
 
-
 juce_add_console_app(${PROJECT_NAME} PRODUCT_NAME "Unit Test Runner")
 
-target_sources(${PROJECT_NAME} PRIVATE PolymorphicReadonlyArrayTest.cpp SynthTest.cpp)
+target_sources(${PROJECT_NAME} PRIVATE RingIndexTest.cpp)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         JUCE_WEB_BROWSER=0
@@ -17,7 +14,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Catch2WithMain
-        Synth
+        MidiGenerator
         juce_recommended_config_flags
         juce_recommended_lto_flags
         juce_recommended_warning_flags
