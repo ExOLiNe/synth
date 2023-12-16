@@ -1,10 +1,6 @@
-project(UnitTestRunner VERSION 1.0)
-
-#set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
-#include(CTest)
+project(SynthUnitTestRunner VERSION 1.0)
 
 find_package(catch2 REQUIRED)
-
 
 juce_add_console_app(${PROJECT_NAME} PRODUCT_NAME "Unit Test Runner")
 
@@ -17,10 +13,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Catch2WithMain
-        Synth
-        juce_recommended_config_flags
-        juce_recommended_lto_flags
-        juce_recommended_warning_flags
-        juce_core)
+        Synth)
 
 catch_discover_tests(${PROJECT_NAME})
