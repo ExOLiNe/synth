@@ -3,7 +3,7 @@
 //
 
 #include "Controls.h"
-#include "../../../../Typedefs.h"
+#include "../../../../defs.h"
 #include "../../../../Constants.h"
 
 Controls::Controls(juce::AudioProcessorValueTreeState& treeState, const juce::String& oscId) {
@@ -117,7 +117,7 @@ void Controls::resized() {
 
 void Controls::setKnob(juce::Slider &knob) {
     knob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0.0f, 0.0f);
+    knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0, 0);
 }
 
 void Controls::bindLayoutsToTree(juce::AudioProcessorValueTreeState& apvts, const juce::String& oscId) {

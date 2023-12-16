@@ -9,6 +9,8 @@
 #include "../../../../../Constants.h"
 #include <Tracy.hpp>
 
+//PRAGMA_IGNORE_DIAGNOSTIC_BEGIN
+
 #define DEFAULT_COLOUR 0.2f
 #define HIGHLIGHTED_COLOUR 1.0f
 
@@ -66,7 +68,7 @@ public:
     }
 
     juce::Matrix3D<float> getProjectionMatrix() const {
-        auto w = 1.2;
+        auto w = 1.2f;
         auto h = w * getLocalBounds().toFloat().getAspectRatio(false); // [2]
 
         return juce::Matrix3D<float>::fromFrustum(-w, w, -h, h, 4.0f, 30.0f); // [3]
@@ -122,13 +124,13 @@ public:
 
         for (size_t z = 0; z < zSize - 1; ++z) {
             for (unsigned int x = 0; x < xSize - 1; ++x) {
-                indices.push_back((xSize * z) + x);
-                indices.push_back((xSize * z) + x + 1);
-                indices.push_back((xSize * (z + 1)) + x);
+                indices.push_back(static_cast<GLuint>((xSize * z) + x));
+                indices.push_back(static_cast<GLuint>((xSize * z) + x + 1));
+                indices.push_back(static_cast<GLuint>((xSize * (z + 1)) + x));
 
-                indices.push_back((xSize * z) + x + 1);
-                indices.push_back((xSize * (z + 1)) + x + 1);
-                indices.push_back((xSize * (z + 1)) + x);
+                indices.push_back(static_cast<GLuint>((xSize * z) + x + 1));
+                indices.push_back(static_cast<GLuint>((xSize * (z + 1)) + x + 1));
+                indices.push_back(static_cast<GLuint>((xSize * (z + 1)) + x));
             }
         }
         prepare = false;
@@ -154,8 +156,8 @@ public:
 
         glPointSize(3.0f);
 
-        glViewport(0, 0, (float) getWidth() * desktopScale,
-                   (float) getHeight() * desktopScale);
+        glViewport(0, 0, static_cast<GLsizei>(static_cast<float>(getWidth()) * desktopScale),
+                   static_cast<GLsizei>(static_cast<float>(getHeight()) * desktopScale));
 
         shader->use();
 
@@ -202,7 +204,7 @@ public:
 
             // Attributes for highlighted
             GL_CALL(highlightedIndex = glGetUniformLocation(shader->getProgramID(), "highlightedIndex"));
-            GL_CALL(glUniform1f(highlightedIndex, zHighlighted));
+            GL_CALL(glUniform1f(highlightedIndex, static_cast<GLfloat>(zHighlighted)));
 
             // Create an index buffer
             GL_CALL(glGenBuffers(1, &indexBuffer));
@@ -217,7 +219,7 @@ public:
             return;
         }
 
-        GL_CALL(glUniform1f(highlightedIndex, zHighlighted));
+        GL_CALL(glUniform1f(highlightedIndex, static_cast<GLfloat>(zHighlighted)));
         GL_CALL(glBindVertexArray(vao));
 
         draw();
@@ -226,19 +228,19 @@ public:
 
         return;
         // Delete the vertex vertexBuffer
-        glDisableVertexAttribArray(highlightedIndex);
+        /*glDisableVertexAttribArray(highlightedIndex);
         glDeleteBuffers(1, &vertexBuffer);
         glDeleteBuffers(1, &indexBuffer);
         openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, 0);
-        openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
         //renderMutex.unlock();
     }
 
     void draw() {
         using namespace juce::gl;
         // Draw the points
-        GL_CALL(glDrawElements(GL_TRIANGLES, indices.size() * sizeof(GLuint),
-                               GL_UNSIGNED_INT, 0));
+        GL_CALL(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size() * sizeof(GLuint)),
+                               GL_UNSIGNED_INT, nullptr));
     }
 
     //! [createShaders]
@@ -365,3 +367,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Wave)
 };
+
+//PRAGMA_IGNORE_DIAGNOSTIC_END

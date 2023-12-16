@@ -3,7 +3,7 @@
 //
 
 #include "LFOPanel.h"
-#include "../../../../../Typedefs.h"
+#include "../../../../../defs.h"
 #include "../../../../../Constants.h"
 
 namespace ui {

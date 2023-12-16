@@ -3,7 +3,7 @@
 //
 
 #include "FmOscPanel.h"
-#include "../../../Typedefs.h"
+#include "../../../defs.h"
 #include "../../../Constants.h"
 
 namespace ui {
@@ -12,7 +12,7 @@ namespace ui {
         addAndMakeVisible(controls);
 
         selector.addListener(&controls);
-        selector.setSize(50.0f, 10.0f);
+        selector.setSize(50, 10);
         selector.addItem("A", 1);
         selector.addItem("B", 2);
         selector.setSelectedItemIndex(0);
@@ -140,7 +140,7 @@ namespace ui {
 
     void FmOscControls::setKnob(juce::Slider &knob) {
         knob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-        knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0.0f, 0.0f);
+        knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 0, 0);
     }
 
 }

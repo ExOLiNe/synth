@@ -38,7 +38,7 @@ namespace ui {
         auto lineColour = juce::Colour(juce::PixelARGB(120, 107, 140, 175));
         float pointThickness = 0.01f;
 
-        auto height = getLocalBounds().getHeight();
+        float height = static_cast<float>(getLocalBounds().getHeight());
         g.fillAll(juce::Colours::black);
         g.addTransform(juce::AffineTransform::verticalFlip(height));
         g.addTransform(juce::AffineTransform::scale(height));

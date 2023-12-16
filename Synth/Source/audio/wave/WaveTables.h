@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "juce_core.h"
-#include "../../other/polymorphic_readonly_array.h"
+#include <polymorphic_readonly_array.h>
 #include <cmath>
 
 #ifdef PROFILING_ENABLED

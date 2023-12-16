@@ -5,6 +5,8 @@
 
 #include "lfo/LFO.h"
 #include "../Constants.h"
+#include "osc/SynthVoice.h"
+#include "osc/SynthSound.h"
 
 #ifdef PROFILING_ENABLED
 #include <Tracy.hpp>
@@ -38,16 +40,16 @@ namespace audio {
         lfo2(valueTree.getRawParameterValue(LFO_2), valueTree.getRawParameterValue(juce::String(LFO_2) + params::lfo::freq.name)) {
             oscOutputBuffers.resize(oscIds.size());
 
-            for (size_t oscIndex = 0; oscIndex < oscIds.size(); ++oscIndex) {
-                oscillators.add(new juce::Synthesiser());
-                oscillators[oscIndex]->clearVoices();
+            for (int oscIndex = 0; oscIndex < oscIds.size(); ++oscIndex) {
+                oscs.add(new juce::Synthesiser());
+                oscs[oscIndex]->clearVoices();
 
                 for (size_t j = 0; j < TOTAL_SYNTH_VOICES; ++j) {
-                    oscillators[oscIndex]->addVoice(new audio::SynthVoice(valueTree, oscIds[oscIndex], j));
+                    oscs[oscIndex]->addVoice(new audio::SynthVoice(valueTree, oscIds[static_cast<size_t>(oscIndex)], j));
                 }
 
-                oscillators[oscIndex]->clearSounds();
-                oscillators[oscIndex]->addSound(new audio::SynthSound());
+                oscs[oscIndex]->clearSounds();
+                oscs[oscIndex]->addSound(new audio::SynthSound());
             }
         }
 
@@ -59,11 +61,11 @@ namespace audio {
 
             //measurement.start();
 
-            for (int i = 0; i < oscillators.size(); ++i) {
+            for (int i = 0; i < oscs.size(); ++i) {
                 juce::AudioBuffer<float>& oscOutputBuffer = oscOutputBuffers[i];
                 oscOutputBuffer.clear();
                 oscOutputBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples());
-                oscillators[i]->renderNextBlock(oscOutputBuffer, midiMessages, 0, oscOutputBuffer.getNumSamples());
+                oscs[i]->renderNextBlock(oscOutputBuffer, midiMessages, 0, oscOutputBuffer.getNumSamples());
             }
 
             // Mix together
@@ -86,15 +88,15 @@ namespace audio {
 #endif
         }
         void prepareToPlay (double sampleRate, int samplesPerBlock) {
-            jassert((size_t)oscillators.size() == oscOutputBuffers.size());
+            jassert((size_t)oscs.size() == oscOutputBuffers.size());
 
-            for (int i = 0; i < oscillators.size(); ++i) {
+            for (int i = 0; i < oscs.size(); ++i) {
                 oscOutputBuffers[i].setSize(Channels, samplesPerBlock);
 
-                oscillators[i]->setCurrentPlaybackSampleRate(sampleRate);
+                oscs[i]->setCurrentPlaybackSampleRate(sampleRate);
 
-                for (int j = 0; j < oscillators[i]->getNumVoices(); ++j) {
-                    ((audio::SynthVoice*)oscillators[i]->getVoice(j))->
+                for (int j = 0; j < oscs[i]->getNumVoices(); ++j) {
+                    ((audio::SynthVoice*)oscs[i]->getVoice(j))->
                         prepareToPlay(sampleRate, samplesPerBlock, Channels);
                 }
             }
@@ -504,7 +506,7 @@ namespace audio {
         }
 
         AudioProcessor& processor;
-        OwnedArray<Synthesiser> oscillators;
+        OwnedArray<Synthesiser> oscs;
         vector<String> oscIds { OSC1, OSC2 };
         vector<AudioBuffer<SampleType>> oscOutputBuffers;
         vector<String> paramNamesAbleToModulate;

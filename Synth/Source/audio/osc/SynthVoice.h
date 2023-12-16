@@ -2,7 +2,7 @@
 
 #include "juce_audio_processors.h"
 #include "../wave/WaveTables.h"
-#include "../../other/polymorphic_readonly_array.h"
+#include <polymorphic_readonly_array.h>
 #include <juce_dsp.h>
 #include "../../Constants.h"
 #include <cstdarg>

@@ -25,14 +25,14 @@ namespace ui {
         auto lineColour = juce::Colour(juce::PixelARGB(120, 107, 140, 175));
         float pointThickness = 3.0f;
 
-        auto height = getLocalBounds().getHeight();
-        auto width = getLocalBounds().getWidth();
+        auto height = static_cast<float>(getLocalBounds().getHeight());
+        auto width = static_cast<float>(getLocalBounds().getWidth());
         g.fillAll(juce::Colours::black);
         g.addTransform(juce::AffineTransform::verticalFlip(height));
-        g.addTransform(juce::AffineTransform::translation(0.0f, (float)height / 2.0f));
+        g.addTransform(juce::AffineTransform::translation(0.0f, height / 2.0f));
 
         auto pointsTotal = width;
-        auto yFactor = (float)height / 2.0f * amp;
+        auto yFactor = height / 2.0f * amp;
 
         float yStep = juce::MathConstants<float>::twoPi / pointsTotal * rate;
 

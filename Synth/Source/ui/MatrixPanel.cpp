@@ -3,7 +3,7 @@
 //
 
 #include "MatrixPanel.h"
-#include "../Typedefs.h"
+#include "../defs.h"
 
 #define SLOTS 20
 
@@ -30,11 +30,11 @@ namespace ui {
         addAndMakeVisible(intensityLabel);
 
         for(size_t i = 0; i < SLOTS; ++i) {
-            auto componentID = std::to_string(i);
+            auto compID = std::to_string(i);
 
             auto source = [&]() {
                 SourceCombo source(new juce::ComboBox(SOURCE));
-                source->setComponentID(juce::String(SOURCE) + componentID);
+                source->setComponentID(juce::String(SOURCE) + compID);
                 int index = 1;
                 source->addItem("-------", index);
 
@@ -51,7 +51,7 @@ namespace ui {
 
             auto destination = [&]() {
                 DestinationCombo destination(new juce::ComboBox(DESTINATION));
-                destination->setComponentID(juce::String(DESTINATION) + componentID);
+                destination->setComponentID(juce::String(DESTINATION) + compID);
                 int index = 1;
                 destination->addItem("------", index);
                 if (destination->getSelectedItemIndex() == -1) {
@@ -157,7 +157,7 @@ namespace ui {
     void MatrixPanel::resized() {
         const float maxHeight = 60.f;
         juce::Array<Track> rows;
-        rows.resize(paramNamesAbleToModulate.size() + 1);
+        rows.resize(static_cast<int>(paramNamesAbleToModulate.size()) + 1);
         for (size_t i = 0; i <= paramNamesAbleToModulate.size(); ++i) {
             rows.add(Track(Fr(1)));
         }
@@ -187,6 +187,7 @@ namespace ui {
         }*/
         grid.items = gridItems;
 
-        grid.performLayout(getLocalBounds().withHeight(maxHeight * paramNamesAbleToModulate.size()));
+        grid.performLayout(getLocalBounds().withHeight(
+            static_cast<int>(maxHeight) * static_cast<int>(paramNamesAbleToModulate.size())));
     }
 }

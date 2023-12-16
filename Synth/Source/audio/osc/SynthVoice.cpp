@@ -83,14 +83,14 @@ namespace audio {
     }
 
     void SynthVoice::updateFilter() {
-        auto adsr1 = ADSR1Buffer.getReadPointer(0);
-        auto adsr2 = ADSR2Buffer.getReadPointer(0);
+        /*auto adsr1 = ADSR1Buffer.getReadPointer(0);
+        auto adsr2 = ADSR2Buffer.getReadPointer(0);*/
         auto filterFreq = filterParams.filterFreq->load();
         auto finalFreq = filterFreq
                 + filterFreq * lfo1Amps.filterFreqAmp->load() * lfo1Values.current
                 + filterFreq * lfo2Amps.filterFreqAmp->load() * lfo2Values.current;
-                + filterFreq * adsr1Amps.filterFreqAmp->load() * adsr1[0]
-                + filterFreq * adsr2Amps.filterFreqAmp->load() * adsr2[0];
+                /*+ filterFreq * adsr1Amps.filterFreqAmp->load() * adsr1[0]
+                + filterFreq * adsr2Amps.filterFreqAmp->load() * adsr2[0];*/
         filter.setCutoffFrequencyHz(finalFreq);
         filter.setResonance(filterParams.filterReso->load() / 100.f);
         filter.setDrive(1.f);

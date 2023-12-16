@@ -79,6 +79,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC TRACY_ENABLE)
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         Tracy
+        Memory
         juce::juce_core
         juce::juce_dsp
         juce::juce_gui_extra

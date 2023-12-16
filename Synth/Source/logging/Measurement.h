@@ -56,8 +56,8 @@ private:
     using Unit = nanoseconds;
     using CountType = Duration::rep;
 
-    CountType getNanos(const Duration& duration) {
-        return duration_cast<Unit>(duration).count();
+    CountType getNanos(const Duration& dur) {
+        return duration_cast<Unit>(dur).count();
     }
 
     static Time now() {
