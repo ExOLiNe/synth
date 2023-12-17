@@ -106,7 +106,7 @@ namespace audio {
 
         currentVoiceBuffer.clear();
         if (currentVoiceBuffer.getNumSamples() < numSamples) {
-            currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
+            currentVoiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples); // TODO prevent realloc
             ADSR1Buffer.setSize(outputBuffer.getNumChannels(), numSamples);
             ADSR2Buffer.setSize(outputBuffer.getNumChannels(), numSamples);
         }

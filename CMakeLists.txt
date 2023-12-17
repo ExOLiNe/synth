@@ -28,9 +28,12 @@ endif()
 
 set(CPM_JUCE_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/../JUCE)
 
-find_package(JUCE REQUIRED)
+set(CPM_TRACY_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/../Tracy)
 
-add_subdirectory(tracy)
+find_package(JUCE REQUIRED)
+find_package(Tracy REQUIRED)
+
+#add_subdirectory(tracy)
 add_subdirectory(MidiGenerator)
 add_subdirectory(Synth)
 add_subdirectory(Memory)

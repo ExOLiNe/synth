@@ -5,26 +5,12 @@
 template<typename Parent, typename ...Children>
 class polymorphic_readonly_array {
 public:
-    /*explicit polymorphic_readonly_array(std::array<Parent*, total>&& array) : align(max_size<Children...>::value()), totalElements(total) {
-        //static_assert(is_copy_constructible<Children...>::value());
-
-        rawData = new char[total * align];
-        swapData<decltype(array), true>(std::move(array));
-    }*/
-
     template<typename Container>
     explicit polymorphic_readonly_array(Container&& container)
         : align(max_size<Children...>::value()), totalElements(container.size()), capacity(align * totalElements) {
         rawData = new char[capacity];
         swapData<decltype(container), true>(std::forward<Container>(container));
     }
-
-    /*[[maybe_unused]]
-    explicit polymorphic_readonly_array(const std::vector<Parent*>& vector)
-        : align(max_size<Children...>::value()), totalElements(vector.size()), capacity(align * totalElements) {
-        rawData = new char[capacity];
-        swapData<decltype(vector), true>(vector);
-    }*/
 
     polymorphic_readonly_array(const polymorphic_readonly_array& other)
         : align(other.align), totalElements(other.totalElements) {
@@ -39,7 +25,6 @@ public:
         : align(other.align), totalElements(other.totalElements), capacity(other.capacity), vector(other.vector), rawData(other.rawData) {
     }
 
-    //polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) = delete;
     polymorphic_readonly_array& operator=(const polymorphic_readonly_array& other) {
         if (this != &other) {
             if (capacity < other.totalElements * other.align) {

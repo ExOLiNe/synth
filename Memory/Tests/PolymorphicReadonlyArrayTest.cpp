@@ -1,5 +1,4 @@
-#include <iostream>
-#include "../Source/other/polymorphic_readonly_array.h"
+#include <polymorphic_readonly_array.h>
 
 struct Base {
     virtual void func() = 0;
